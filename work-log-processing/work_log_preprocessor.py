@@ -1,71 +1,130 @@
-from datetime import datetime
+"""Module for preprocessing personal work log."""
+
+from datetime import date, datetime
 import re
 import sys
 
-class Log:
-  def __generate_key(self, args):
-    [clock_in, clock_out, date] = args
+class LogEntry:
+    """An entry in the work log corresponding to a particular datetime pair."""
 
-    return re.sub(r'\D', '', f'{date}{clock_in}{clock_out}')
+    activities: list[str]
+    """Activities done between the clock-in and clock-out datetimes."""
+    clock_in: date | None
+    """Clock-in datetime represented in `YYYY-MM-DD HH:MM:SS` format."""
+    clock_out: date | None
+    """Clock-out datetime represented in `YYYY-MM-DD HH:MM:SS` format."""
+    key: str
+    """Unique key to identify the log entry."""
+    log_date: date | None
+    """Log entry date represented in `YYYY-MM-DD` format."""
+    log_type: str
+    """Whether the log entry is a holiday, an offset, an onsite, or a work-from-home entry."""
 
-  def __get_date(self, date):
-    try: 
-      return datetime.strptime(date, f'%Y.%m.%d').date()
-    except:
-      return date
+    def __generate_key(self):
+        """Generate a key based from the clock-in and clock-out datetimes."""
 
-  def __get_time_log(self, args):
-    [date, time] = args
+        return re.sub(
+            r'\D', 
+            '',
+            f'{self.clock_in}{self.clock_out}'
+        )
 
-    try:
-      time = datetime.strptime(time, f'%H:%M').time()
+    def __get_date(self, log_date: str):
+        """Transform a log date string as a date if possible; return `None` otherwise."""
 
-      return datetime.combine(date, time)
-    except:
-      return time
+        try:
+            return datetime \
+                .strptime(log_date, '%Y.%m.%d') \
+                .date()
+        except (OverflowError, NotImplementedError, TypeError, ValueError):
+            return None
 
-  def __init__(self, args):
-    [date, clock_in, clock_out, type] = args
-    
-    date = self.__get_date(date)
+    def __get_datetime(self, log_datetime: str):
+        """Transform a log datetime string as a datetime if possible; return `None` otherwise."""
 
-    self.activities = []
-    self.clock_in = self.__get_time_log([date, clock_in])
-    self.clock_out = self.__get_time_log([date, clock_out])
-    self.date = date
-    self.key = self.__generate_key([clock_in, clock_out, date])
-    self.type = type
-  
-  def __repr__(self):
-    return (
-      '{\n'
-      f'  activities: {self.activities}\n'
-      f'  clock-in: {self.clock_in}\n'
-      f'  clock-out: {self.clock_out}\n'
-      f'  date: {self.date}\n'
-      f'  type: {self.type}\n'
-      '}'
-    )
+        try:
+            if self.log_date is None:
+                raise TypeError
 
-log_file = open(sys.argv[1])
+            return datetime.combine(
+                self.log_date,
+                datetime \
+                    .strptime(log_datetime, '%H:%M') \
+                    .time()
+            )
+        except (OverflowError, NotImplementedError, TypeError, ValueError):
+            return None
+
+    def __init__(self, line: str):
+        """Initialize a log entry from a log file line."""
+
+        [
+            log_date,
+            clock_in,
+            clock_out,
+            log_type,
+        ] = line \
+            .strip() \
+            .split(' - ')
+
+        self.activities = []
+        self.log_type = log_type
+
+        """@README
+
+        Preserve the initialization order below as some methods require
+        some properties to have been initialized beforehand.
+        """
+        self.log_date = self.__get_date(log_date)
+
+        self.clock_in = self.__get_datetime(clock_in)
+        self.clock_out = self.__get_datetime(clock_out)
+
+        self.key = self.__generate_key()
+
+    def __repr__(self):
+        """Represent the log entry as a JSON object on print."""
+
+        return (
+          '{\n'
+          f'  activities: {self.activities}\n'
+          f'  clock-in: {self.clock_in}\n'
+          f'  clock-out: {self.clock_out}\n'
+          f'  log-date: {self.log_date}\n'
+          f'  log-type: {self.log_type}\n'
+          '}'
+        )
 
 ACTIVITY_PREFIX = '- '
 
-current_key = ''
-logs = {}
-for line in log_file:
-  if re.match(r'^\d{4}.\d{2}.\d{2}.*$', line):
-    log = Log(line.strip().split(' - '))
+def preprocess_work_log(filepath: str) -> None:
+    """Parse work log in specified file path then print each entry in console as JSON objects."""
 
-    current_key = log.key
+    log_file = open(filepath, encoding='utf-8')
 
-    logs[log.key] = log
-  elif line.startswith(ACTIVITY_PREFIX):
-    logs[current_key].activities.append(
-      line.strip().removeprefix(ACTIVITY_PREFIX)
-    )
+    current_key: str = ''
+    entries: dict[str, LogEntry] = {}
 
-for log in logs:
-  print(logs[log])
+    for log_line in log_file:
+        if re.match(r'^\d{4}.\d{2}.\d{2}.*$', log_line):
+            entry = LogEntry(log_line)
 
-log_file.close()
+            current_key = entry.key
+
+            entries[entry.key] = entry
+        elif log_line.startswith(ACTIVITY_PREFIX):
+            entries \
+                [current_key] \
+                .activities \
+                .append(
+                    log_line \
+                        .strip() \
+                        .removeprefix(ACTIVITY_PREFIX)
+                )
+
+    for entry in entries.values():
+        print(entry)
+
+    log_file.close()
+
+preprocess_work_log(sys.argv[1])
