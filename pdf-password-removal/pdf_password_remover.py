@@ -2,7 +2,6 @@
 
 import glob
 import os
-import sys
 
 import pikepdf
 
@@ -48,7 +47,10 @@ def _get_pdf_file_paths(file_path_input: str) -> list[str]:
     Return an empty string otherwise.
     """
 
-    if file_path_input.endswith('.pdf') and os.path.isfile(file_path_input):
+    if (
+        file_path_input.endswith('.pdf')
+        and os.path.isfile(file_path_input)
+    ):
         return [file_path_input]
 
     file_paths = []
@@ -64,10 +66,37 @@ def _get_pdf_file_paths(file_path_input: str) -> list[str]:
 
     raise ValueError('Given file path has no valid PDF files.')
 
-def remove_password_protection(file_path_input: str, passwords: list[str]) -> None:
-    """Remove password protection from all PDF files in the specified directory."""
+def remove_password_protection() -> None:
+    """Remove password protection from all PDF files in file path input using password inputs."""
 
-    for file_path in _get_pdf_file_paths(file_path_input):
+    file_paths = _get_pdf_file_paths(
+        str(
+            input(
+                'Enter the directory or file path of the PDF files.\n'
+                '>\n'
+            )
+                .removeprefix('"')
+                .removesuffix('"')
+        )
+    )
+
+    print(
+        '\n'
+        'Enter next the passwords to attempt opening any PDF file with.\n'
+        'Quit entering passwords by entering an empty string.\n'
+        '>\n',
+        end=''
+    )
+
+    password_input = str(input())
+    passwords: list[str] = []
+
+    while password_input != '':
+        passwords.append(password_input)
+
+        password_input = str(input())
+
+    for file_path in file_paths:
         _remove_password_protection_per_file(file_path, passwords)
 
-remove_password_protection(sys.argv[1], [sys.argv[2]])
+remove_password_protection()
