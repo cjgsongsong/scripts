@@ -1,10 +1,14 @@
 """Module for removing password protection from secured PDF files."""
 
+import glob
 import sys
+
 import pikepdf
 
-def remove_password(filepath: str, password: str) -> None:
-    """Overwrite the password-protected file in specified path as its unprotected version."""
+PDF_SEARCH_PATTERN = "/**/*.pdf"
+
+def remove_password_protection(filepath: str, password: str) -> None:
+    """Overwrite the password-protected file in given file path as its unprotected version."""
 
     pikepdf \
         .open(
@@ -14,4 +18,10 @@ def remove_password(filepath: str, password: str) -> None:
         ) \
         .save(filepath)
 
-remove_password(sys.argv[1], sys.argv[2])
+def batch_remove_password_protection(directory: str, password: str) -> None:
+    """Remove password protection from all PDF files in the specified directory."""
+
+    for filepath in glob.iglob(directory + PDF_SEARCH_PATTERN, recursive=True):
+        remove_password_protection(filepath, password)
+
+batch_remove_password_protection(sys.argv[1], sys.argv[2])
