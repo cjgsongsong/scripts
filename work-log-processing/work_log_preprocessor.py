@@ -4,6 +4,13 @@ from datetime import date, datetime
 import re
 import sys
 
+ACTIVITY_PREFIX = '- '
+DELIMITER = ' - '
+ENCODING = 'utf-8'
+LOG_DATE_FORMAT = '%Y.%m.%d'
+LOG_ENTRY_START_PATTERN = r'^\d{4}.\d{2}.\d{2}.*$'
+LOG_TIME_FORMAT = '%H:%M'
+
 class LogEntry:
     """An entry in the work log corresponding to a particular datetime pair."""
 
@@ -34,12 +41,12 @@ class LogEntry:
 
         try:
             return datetime \
-                .strptime(log_date, '%Y.%m.%d') \
+                .strptime(log_date, LOG_DATE_FORMAT) \
                 .date()
         except (OverflowError, NotImplementedError, TypeError, ValueError):
             return None
 
-    def __get_datetime(self, log_datetime: str):
+    def __get_datetime(self, log_time: str):
         """Transform a log datetime string as a datetime if possible; return `None` otherwise."""
 
         try:
@@ -49,7 +56,7 @@ class LogEntry:
             return datetime.combine(
                 self.log_date,
                 datetime \
-                    .strptime(log_datetime, '%H:%M') \
+                    .strptime(log_time, LOG_TIME_FORMAT) \
                     .time()
             )
         except (OverflowError, NotImplementedError, TypeError, ValueError):
@@ -65,7 +72,7 @@ class LogEntry:
             log_type,
         ] = line \
             .strip() \
-            .split(' - ')
+            .split(DELIMITER)
 
         self.activities = []
         self.log_type = log_type
@@ -95,18 +102,16 @@ class LogEntry:
           '}'
         )
 
-ACTIVITY_PREFIX = '- '
-
 def preprocess_work_log(filepath: str) -> None:
     """Parse work log in specified file path then print each entry in console as JSON objects."""
 
-    log_file = open(filepath, encoding='utf-8')
+    log_file = open(filepath, encoding=ENCODING)
 
     current_key: str = ''
     entries: dict[str, LogEntry] = {}
 
     for log_line in log_file:
-        if re.match(r'^\d{4}.\d{2}.\d{2}.*$', log_line):
+        if re.match(LOG_ENTRY_START_PATTERN, log_line):
             entry = LogEntry(log_line)
 
             current_key = entry.key
