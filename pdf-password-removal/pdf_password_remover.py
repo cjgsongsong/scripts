@@ -77,7 +77,7 @@ def _get_pdf_file_paths(file_path_input: str) -> list[str]:
         if file_paths:
             return file_paths
 
-    raise ValueError('Given file path has no valid PDF files.')
+    raise ValueError(f'`{file_path_input}` has no valid PDF files.')
 
 def remove_password_protection() -> None:
     """Remove password protection from all PDF files in file path input using password inputs."""
