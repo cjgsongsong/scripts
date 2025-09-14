@@ -3,6 +3,7 @@
 from datetime import date, datetime
 import re
 import sys
+import uuid
 
 ACTIVITY_PREFIX = '- '
 DELIMITER = ' - '
@@ -29,6 +30,9 @@ class LogEntry:
 
     def __generate_key(self):
         """Generate a key based from the clock-in and clock-out datetimes."""
+
+        if self.clock_in is None or self.clock_out is None:
+            return str(uuid.uuid4())
 
         return re.sub(
             r'\D', 
@@ -97,6 +101,7 @@ class LogEntry:
           f'  activities: {self.activities}\n'
           f'  clock-in: {self.clock_in}\n'
           f'  clock-out: {self.clock_out}\n'
+          f'  key: {self.key}\n'
           f'  log-date: {self.log_date}\n'
           f'  log-type: {self.log_type}\n'
           '}'
