@@ -5,7 +5,20 @@ import os
 
 import pikepdf
 
-PDF_SEARCH_PATTERN = '/**/*.pdf'
+COPY_PASTE_AFFIX = '"'
+FILE_PATH_INPUT_PROMPT = (
+    'Enter the directory or file path of the PDF files.\n'
+    '>\n'
+)
+PASSWORD_INPUT_PROMPT = (
+    '\n'
+    'Enter next the passwords to attempt opening any PDF file with.\n'
+    'Quit entering passwords by entering an empty string.\n'
+    '>\n'
+)
+PASSWORD_INPUT_END_MARKER = ''
+PDF_FILE_TYPE_EXTENSION = '.pdf'
+PDF_SEARCH_PATTERN = f'/**/*{PDF_FILE_TYPE_EXTENSION}'
 
 def _remove_password_protection_per_file(file_path: str, passwords: list[str]) -> None:
     """Overwrite a PDF file as its unprotected version if it is password-protected."""
@@ -48,7 +61,7 @@ def _get_pdf_file_paths(file_path_input: str) -> list[str]:
     """
 
     if (
-        file_path_input.endswith('.pdf')
+        file_path_input.endswith(PDF_FILE_TYPE_EXTENSION)
         and os.path.isfile(file_path_input)
     ):
         return [file_path_input]
@@ -71,27 +84,18 @@ def remove_password_protection() -> None:
 
     file_paths = _get_pdf_file_paths(
         str(
-            input(
-                'Enter the directory or file path of the PDF files.\n'
-                '>\n'
-            )
-                .removeprefix('"')
-                .removesuffix('"')
+            input(FILE_PATH_INPUT_PROMPT)
+                .removeprefix(COPY_PASTE_AFFIX)
+                .removesuffix(COPY_PASTE_AFFIX)
         )
     )
 
-    print(
-        '\n'
-        'Enter next the passwords to attempt opening any PDF file with.\n'
-        'Quit entering passwords by entering an empty string.\n'
-        '>\n',
-        end=''
-    )
+    print(PASSWORD_INPUT_PROMPT, end='')
 
     password_input = str(input())
     passwords: list[str] = []
 
-    while password_input != '':
+    while password_input != PASSWORD_INPUT_END_MARKER:
         passwords.append(password_input)
 
         password_input = str(input())
