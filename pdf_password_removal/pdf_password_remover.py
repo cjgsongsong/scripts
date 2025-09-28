@@ -42,6 +42,8 @@ def _remove_password_protection_per_file(file_path: str, passwords: list[str]) -
 
                 did_overwrite = True
 
+                print(f'Password `{password}` is now removed for `{file_path}`.')
+
                 break
             except pikepdf.PasswordError:
                 continue
@@ -49,8 +51,6 @@ def _remove_password_protection_per_file(file_path: str, passwords: list[str]) -
         if not did_overwrite:
             raise ValueError(f'Given password(s) cannot open `{file_path}`.') \
                 from has_password_exception
-
-        print(f'Password protection is now removed for `{file_path}`.')
 
 def _get_pdf_file_paths(file_path_input: str) -> list[str]:
     """Get PDF file paths from input string.
