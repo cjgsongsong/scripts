@@ -82,7 +82,6 @@ class LogEntry:
         self.log_type = log_type
 
         """@README
-
         Preserve the initialization order below as some methods require
         some properties to have been initialized beforehand.
         """

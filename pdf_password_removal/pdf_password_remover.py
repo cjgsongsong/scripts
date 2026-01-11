@@ -1,10 +1,8 @@
 """Module for removing password protection from secured PDF files."""
 
 from enum import Enum
-
 import glob
 import os
-
 import pikepdf
 
 COPY_PASTE_AFFIX = '"'
@@ -12,13 +10,13 @@ FILE_PATH_INPUT_PROMPT = (
     'Enter the directory or file path of the PDF files.\n'
     '>\n'
 )
+PASSWORD_INPUT_END_MARKER = ''
 PASSWORD_INPUT_PROMPT = (
     '\n'
     'Enter next the passwords to attempt opening any PDF file with.\n'
     'Quit entering passwords by entering an empty string.\n'
     '>\n'
 )
-PASSWORD_INPUT_END_MARKER = ''
 PDF_FILE_TYPE_EXTENSION = '.pdf'
 PDF_SEARCH_PATTERN = f'/**/*{PDF_FILE_TYPE_EXTENSION}'
 
@@ -49,13 +47,17 @@ def _get_pdf_file_paths(file_path_input: str) -> list[str]:
 
     if (
         file_path_input.endswith(PDF_FILE_TYPE_EXTENSION)
-        and os.path.isfile(file_path_input)
+        and os \
+            .path \
+            .isfile(file_path_input)
     ):
         return [file_path_input]
 
     file_paths = []
 
-    if os.path.isdir(file_path_input):
+    if os \
+        .path \
+        .isdir(file_path_input):
         file_paths = glob.glob(
             file_path_input + PDF_SEARCH_PATTERN,
             recursive=True,
@@ -134,6 +136,5 @@ def remove_password_protection() -> None:
 
     for file_state, file_count in counts_per_file_state.items():
         print(f'Password protection removal resulted to {file_count} {file_state.value} file(s).')
-
 
 remove_password_protection()
