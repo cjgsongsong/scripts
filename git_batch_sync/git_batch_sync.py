@@ -1,7 +1,6 @@
 """Module for synchronizing local repository states with their remote counterparts."""
 
 from datetime import datetime
-
 from git import Repo
 
 CURRENT_DATETIME_FORMAT = '%Y-%m-%d-%H-%M-%S'
@@ -18,7 +17,8 @@ REPOSITORY_INPUT_PROMPT = (
 def _get_remote_main_branch_name(repository: str) -> str:
     """Extract the remote repository's main branch's name from `git remote show origin`'s output.
     
-    Return said branch's name."""
+    Return said branch's name.
+    """
 
     return str(
         Repo(repository)
