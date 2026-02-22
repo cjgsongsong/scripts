@@ -3,15 +3,15 @@
 from datetime import datetime
 from git import Repo
 
-CURRENT_DATETIME_FORMAT = '%Y-%m-%d-%H-%M-%S'
-GIT_FILE_TYPE_EXTENSION = '.git'
-GIT_REMOTE_SHOW_ORIGIN_COMMAND = 'git remote show origin'
-GIT_REMOTE_SHOW_ORIGIN_MARKER = 'HEAD branch:'
-REPOSITORY_INPUT_END_MARKER = ''
+CURRENT_DATETIME_FORMAT = "%Y-%m-%d-%H-%M-%S"
+GIT_FILE_TYPE_EXTENSION = ".git"
+GIT_REMOTE_SHOW_ORIGIN_COMMAND = "git remote show origin"
+GIT_REMOTE_SHOW_ORIGIN_MARKER = "HEAD branch:"
+REPOSITORY_INPUT_END_MARKER = ""
 REPOSITORY_INPUT_PROMPT = (
-    'Enter the paths of local repositories to sync.\n'
-    'Quit entering paths by entering an empty string.\n'
-    '>\n'
+    "Enter the paths of local repositories to sync.\n"
+    "Quit entering paths by entering an empty string.\n"
+    ">\n"
 )
 
 def _get_remote_main_branch_name(repository: str) -> str:
@@ -27,7 +27,7 @@ def _get_remote_main_branch_name(repository: str) -> str:
     ) \
         .split(GIT_REMOTE_SHOW_ORIGIN_MARKER) \
         [1] \
-        .split('\n') \
+        .split("\n") \
         [0] \
         .strip()
 
@@ -38,7 +38,6 @@ def _git_checkout_remote_main(repository: str) -> None:
     - `git checkout -b <REMOTE_MAIN_BRANCH>-<CURRENT_DATETIME>` if already in said branch
     - `git branch -D <REMOTE_MAIN_BRANCH>`
     - `git checkout <REMOTE_MAIN_BRANCH>`
-    ```
     """
 
     local_repository = Repo(repository)
@@ -56,16 +55,16 @@ def _git_checkout_remote_main(repository: str) -> None:
                 .today() \
                 .strftime(CURRENT_DATETIME_FORMAT)
 
-            current_branch.checkout(b=f'{current_branch_name}-{current_datetime}')
+            current_branch.checkout(b=f"{current_branch_name}-{current_datetime}")
 
-            print(f'Local repository switched to a copy branch `{local_repository.active_branch}`.')
+            print(f"Local repository switched to a copy branch `{local_repository.active_branch}`.")
 
         local_repository \
             .delete_head(local_head_branch, force=True)
 
-        print(f'Local repository deleted its main branch `{current_branch_name}`.')
+        print(f"Local repository deleted its main branch `{current_branch_name}`.")
     except IndexError:
-        print(f'Local repository has no `{remote_main_branch_name}` branch.')
+        print(f"Local repository has no `{remote_main_branch_name}` branch.")
     finally:
         remote_main_branch = local_repository \
             .remote() \
@@ -77,7 +76,7 @@ def _git_checkout_remote_main(repository: str) -> None:
             .set_tracking_branch(remote_main_branch) \
             .checkout()
 
-        print(f'Local repository switched to the main branch `{local_repository.active_branch}`.')
+        print(f"Local repository switched to the main branch `{local_repository.active_branch}`.")
 
 def _git_fetch(repository: str) -> None:
     """Synchronize a local repository state with its remote counterpart.
@@ -91,15 +90,15 @@ def _git_fetch(repository: str) -> None:
         .url \
         .rstrip(GIT_FILE_TYPE_EXTENSION)
 
-    print(f'Changes from remote repository in {remote_repository_url} have been fetched.')
+    print(f"Changes from remote repository in {remote_repository_url} have been fetched.")
     if len(changed_branches) > 0:
         for branch in changed_branches:
-            print(f'Branch {branch} has changes.')
+            print(f"Branch {branch} has changes.")
 
 def git_batch_sync() -> None:
     """Synchronize local repository states with their remote counterparts."""
 
-    print(REPOSITORY_INPUT_PROMPT, end='')
+    print(REPOSITORY_INPUT_PROMPT, end="")
 
     repository_input = str(input())
     repositories: list[str] = []

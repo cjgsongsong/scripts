@@ -7,25 +7,25 @@ import pikepdf
 
 COPY_PASTE_AFFIX = '"'
 FILE_PATH_INPUT_PROMPT = (
-    'Enter the directory or file path of the PDF files.\n'
-    '>\n'
+    "Enter the directory or file path of the PDF files.\n"
+    ">\n"
 )
-PASSWORD_INPUT_END_MARKER = ''
+PASSWORD_INPUT_END_MARKER = ""
 PASSWORD_INPUT_PROMPT = (
-    '\n'
-    'Enter next the passwords to attempt opening any PDF file with.\n'
-    'Quit entering passwords by entering an empty string.\n'
-    '>\n'
+    "\n"
+    "Enter next the passwords to attempt opening any PDF file with.\n"
+    "Quit entering passwords by entering an empty string.\n"
+    ">\n"
 )
-PDF_FILE_TYPE_EXTENSION = '.pdf'
-PDF_SEARCH_PATTERN = f'/**/*{PDF_FILE_TYPE_EXTENSION}'
+PDF_FILE_TYPE_EXTENSION = ".pdf"
+PDF_SEARCH_PATTERN = f"/**/*{PDF_FILE_TYPE_EXTENSION}"
 
 class FileState(Enum):
     """Enumeration representating a file's state after undergoing password protection removal."""
 
-    OPENED = 'opened'
-    PROTECTED = 'still protected'
-    UNPROTECTED = 'unprotected'
+    OPENED = "opened"
+    PROTECTED = "still protected"
+    UNPROTECTED = "unprotected"
 
 counts_per_file_state: dict[FileState, int] = {}
 
@@ -66,9 +66,9 @@ def _get_pdf_file_paths(file_path_input: str) -> list[str]:
         if file_paths:
             return file_paths
 
-    raise ValueError(f'`{file_path_input}` has no valid PDF files.')
+    raise ValueError(f"`{file_path_input}` has no valid PDF files.")
 
-def _remove_password_protection_per_file(file_path: str, passwords: list[str]) -> FileState:
+def _remove_pdf_password(file_path: str, passwords: list[str]) -> FileState:
     """Overwrite a PDF file as its unprotected version if it is password-protected.
     
     Return the file's state after the password protection removal.
@@ -77,7 +77,7 @@ def _remove_password_protection_per_file(file_path: str, passwords: list[str]) -
     try:
         pikepdf.open(file_path)
 
-        print(f'No password protection exists for `{file_path}`.')
+        print(f"No password protection exists for `{file_path}`.")
 
         return FileState.UNPROTECTED
     except pikepdf.PasswordError:
@@ -95,7 +95,7 @@ def _remove_password_protection_per_file(file_path: str, passwords: list[str]) -
 
                 did_overwrite = True
 
-                print(f'Password `{password}` is now removed for `{file_path}`.')
+                print(f"Password `{password}` is now removed for `{file_path}`.")
 
                 break
             except pikepdf.PasswordError:
@@ -104,11 +104,11 @@ def _remove_password_protection_per_file(file_path: str, passwords: list[str]) -
         if did_overwrite:
             return FileState.OPENED
         else:
-            print(f'Given password(s) cannot open `{file_path}`.')
+            print(f"Given password(s) cannot open `{file_path}`.")
 
             return FileState.PROTECTED
 
-def remove_password_protection() -> None:
+def remove_pdf_passwords() -> None:
     """Remove password protection from all PDF files in file path input using password inputs."""
 
     file_paths = _get_pdf_file_paths(
@@ -119,7 +119,7 @@ def remove_password_protection() -> None:
         )
     )
 
-    print(PASSWORD_INPUT_PROMPT, end='')
+    print(PASSWORD_INPUT_PROMPT, end="")
 
     password_input = str(input())
     passwords: list[str] = []
@@ -131,10 +131,10 @@ def remove_password_protection() -> None:
 
     for file_path in file_paths:
         _count_per_file_state(
-            _remove_password_protection_per_file(file_path, passwords)
+            _remove_pdf_password(file_path, passwords)
         )
 
     for file_state, file_count in counts_per_file_state.items():
-        print(f'Password protection removal resulted to {file_count} {file_state.value} file(s).')
+        print(f"Password protection removal resulted to {file_count} {file_state.value} file(s).")
 
-remove_password_protection()
+remove_pdf_passwords()
