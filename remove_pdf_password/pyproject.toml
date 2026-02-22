@@ -1,0 +1,16 @@
+[project]
+name = "remove-pdf-password"
+version = "0.1.0"
+description = "Script for removing password protection from secured PDF files"
+authors = [
+    {name = "Siege Songsong",email = "cjgsongsong@gmail.com"}
+]
+requires-python = ">=3.14"
+dependencies = [
+    "pikepdf (>=10.3.0,<11.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
