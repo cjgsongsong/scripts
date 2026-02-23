@@ -62,8 +62,8 @@ def _get_pdf_file_paths(file_path_input: str) -> list[str]:
 
     if isdir(file_path_input):
         file_paths = glob(
-            file_path_input + PDF_SEARCH_PATTERN,
-            recursive=True,
+            pathname = file_path_input + PDF_SEARCH_PATTERN,
+            recursive = True,
         )
 
         if file_paths:
@@ -71,7 +71,10 @@ def _get_pdf_file_paths(file_path_input: str) -> list[str]:
 
     raise ValueError(f"`{file_path_input}` has no valid PDF files.")
 
-def _remove_pdf_password(file_path: str, passwords: list[str]) -> FileState:
+def _remove_pdf_password(
+        file_path: str,
+        passwords: list[str]
+    ) -> FileState:
     """
     Overwrite a PDF file as its unprotected version if it is password-protected.
     
@@ -91,9 +94,9 @@ def _remove_pdf_password(file_path: str, passwords: list[str]) -> FileState:
             try:
                 Pdf \
                     .open(
-                        file_path,
-                        allow_overwriting_input=True,
-                        password=password,
+                        allow_overwriting_input = True,
+                        filename_or_stream = file_path,
+                        password = password,
                     ) \
                     .save(file_path)
 
@@ -126,7 +129,10 @@ def remove_pdf_passwords() -> None:
         )
     )
 
-    print(PASSWORD_INPUT_PROMPT, end="")
+    print(
+        PASSWORD_INPUT_PROMPT,
+        end = ""
+    )
 
     password_input = str(input())
     passwords: list[str] = []
@@ -138,7 +144,10 @@ def remove_pdf_passwords() -> None:
 
     for file_path in file_paths:
         _count_per_file_state(
-            _remove_pdf_password(file_path, passwords)
+            _remove_pdf_password(
+                file_path = file_path,
+                passwords = passwords
+            )
         )
 
     for file_state, file_count in counts_per_file_state.items():

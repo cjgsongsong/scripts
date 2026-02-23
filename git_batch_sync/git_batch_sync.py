@@ -26,7 +26,10 @@ def _get_remote_main_branch_name(repository: str) -> str:
     return str(
         Repo(repository)
             .git
-            .execute(GIT_REMOTE_SHOW_ORIGIN_COMMAND, stdout_as_string=True)
+            .execute(
+                command = GIT_REMOTE_SHOW_ORIGIN_COMMAND,
+                stdout_as_string = True
+            )
     ) \
         .split(GIT_REMOTE_SHOW_ORIGIN_MARKER) \
         [1] \
@@ -59,12 +62,15 @@ def _git_checkout_remote_main(repository: str) -> None:
                 .today() \
                 .strftime(CURRENT_DATETIME_FORMAT)
 
-            current_branch.checkout(b=f"{current_branch_name}-{current_datetime}")
+            current_branch.checkout(b = f"{current_branch_name}-{current_datetime}")
 
             print(f"Local repository switched to a copy branch `{local_repository.active_branch}`.")
 
         local_repository \
-            .delete_head(local_head_branch, force=True)
+            .delete_head(
+                local_head_branch,
+                force = True
+            )
 
         print(f"Local repository deleted its main branch `{current_branch_name}`.")
     except IndexError:
@@ -76,7 +82,10 @@ def _git_checkout_remote_main(repository: str) -> None:
             [remote_main_branch_name]
 
         local_repository \
-            .create_head(remote_main_branch_name, remote_main_branch) \
+            .create_head(
+                path = remote_main_branch_name,
+                commit = remote_main_branch
+            ) \
             .set_tracking_branch(remote_main_branch) \
             .checkout()
 
@@ -90,7 +99,7 @@ def _git_fetch(repository: str) -> None:
     """
     remote_repository = Repo(repository).remote()
 
-    changed_branches = remote_repository.fetch(verbose=False)
+    changed_branches = remote_repository.fetch(verbose = False)
     remote_repository_url = remote_repository \
         .url \
         .rstrip(GIT_FILE_TYPE_EXTENSION)
@@ -103,7 +112,10 @@ def _git_fetch(repository: str) -> None:
 def git_batch_sync() -> None:
     """Synchronize local repository states with their remote counterparts."""
 
-    print(REPOSITORY_INPUT_PROMPT, end="")
+    print(
+        REPOSITORY_INPUT_PROMPT,
+        end = ""
+    )
 
     repository_input = str(input())
     repositories: list[str] = []
