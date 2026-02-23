@@ -1,4 +1,6 @@
-"""Script for synchronizing local repository states with their remote counterparts."""
+"""
+Script for synchronizing local repository states with their remote counterparts.
+"""
 
 from datetime import datetime
 from git import Repo
@@ -15,7 +17,8 @@ REPOSITORY_INPUT_PROMPT = (
 )
 
 def _get_remote_main_branch_name(repository: str) -> str:
-    """Extract the remote repository's main branch's name from `git remote show origin`'s output.
+    """
+    Extract the remote repository's main branch's name from `git remote show origin`'s output.
     
     Return said branch's name.
     """
@@ -32,7 +35,8 @@ def _get_remote_main_branch_name(repository: str) -> str:
         .strip()
 
 def _git_checkout_remote_main(repository: str) -> None:
-    """Switch a local repository branch with its remote counterpart's main branch.
+    """
+    Switch a local repository branch with its remote counterpart's main branch.
     
     Essentially, this is
     - `git checkout -b <REMOTE_MAIN_BRANCH>-<CURRENT_DATETIME>` if already in said branch
@@ -79,7 +83,8 @@ def _git_checkout_remote_main(repository: str) -> None:
         print(f"Local repository switched to the main branch `{local_repository.active_branch}`.")
 
 def _git_fetch(repository: str) -> None:
-    """Synchronize a local repository state with its remote counterpart.
+    """
+    Synchronize a local repository state with its remote counterpart.
     
     Essentially, this is `git fetch`.
     """
