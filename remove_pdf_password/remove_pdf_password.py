@@ -1,9 +1,9 @@
 """Script for removing password protection from secured PDF files."""
 
 from enum import Enum
-import glob
-import os
-import pikepdf
+from glob import glob
+from os.path import isdir, isfile
+from pikepdf import Pdf, PasswordError
 
 COPY_PASTE_AFFIX = '"'
 FILE_PATH_INPUT_PROMPT = (
@@ -47,18 +47,14 @@ def _get_pdf_file_paths(file_path_input: str) -> list[str]:
 
     if (
         file_path_input.endswith(PDF_FILE_TYPE_EXTENSION)
-        and os \
-            .path \
-            .isfile(file_path_input)
+        and isfile(file_path_input)
     ):
         return [file_path_input]
 
     file_paths = []
 
-    if os \
-        .path \
-        .isdir(file_path_input):
-        file_paths = glob.glob(
+    if isdir(file_path_input):
+        file_paths = glob(
             file_path_input + PDF_SEARCH_PATTERN,
             recursive=True,
         )
@@ -75,17 +71,17 @@ def _remove_pdf_password(file_path: str, passwords: list[str]) -> FileState:
     """
 
     try:
-        pikepdf.open(file_path)
+        Pdf.open(file_path)
 
         print(f"No password protection exists for `{file_path}`.")
 
         return FileState.UNPROTECTED
-    except pikepdf.PasswordError:
+    except PasswordError:
         did_overwrite = False
 
         for password in passwords:
             try:
-                pikepdf \
+                Pdf \
                     .open(
                         file_path,
                         allow_overwriting_input=True,
@@ -98,7 +94,7 @@ def _remove_pdf_password(file_path: str, passwords: list[str]) -> FileState:
                 print(f"Password `{password}` is now removed for `{file_path}`.")
 
                 break
-            except pikepdf.PasswordError:
+            except PasswordError:
                 continue
 
         if did_overwrite:
