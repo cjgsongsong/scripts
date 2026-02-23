@@ -1,4 +1,4 @@
-"""Module for removing password protection from secured PDF files."""
+"""Script for removing password protection from secured PDF files."""
 
 from enum import Enum
 import glob
@@ -13,7 +13,7 @@ FILE_PATH_INPUT_PROMPT = (
 PASSWORD_INPUT_END_MARKER = ""
 PASSWORD_INPUT_PROMPT = (
     "\n"
-    "Enter next the passwords to attempt opening any PDF file with.\n"
+    "Enter next the passwords to attempt opening the PDF files with.\n"
     "Quit entering passwords by entering an empty string.\n"
     ">\n"
 )
@@ -30,7 +30,7 @@ class FileState(Enum):
 counts_per_file_state: dict[FileState, int] = {}
 
 def _count_per_file_state(file_state: FileState) -> None:
-    """Add to a file state's count based on a result of a password protection removal."""
+    """Add to a file state's count based on the result of a password protection removal."""
 
     if file_state not in counts_per_file_state:
         counts_per_file_state[file_state] = 1
@@ -38,9 +38,9 @@ def _count_per_file_state(file_state: FileState) -> None:
         counts_per_file_state[file_state] += 1
 
 def _get_pdf_file_paths(file_path_input: str) -> list[str]:
-    """Get PDF file paths from input string.
+    """Get the PDF file paths from the input string.
     
-    Return a PDF file path pattern if input is a valid directory.
+    Return a PDF file path pattern if the input is a valid directory.
     Return the file path input if it is a valid PDF file.
     Return an empty string otherwise.
     """
@@ -109,7 +109,10 @@ def _remove_pdf_password(file_path: str, passwords: list[str]) -> FileState:
             return FileState.PROTECTED
 
 def remove_pdf_passwords() -> None:
-    """Remove password protection from all PDF files in file path input using password inputs."""
+    """
+    Remove password protection from all the PDF files in the file path input
+    using the password inputs.
+    """
 
     file_paths = _get_pdf_file_paths(
         str(

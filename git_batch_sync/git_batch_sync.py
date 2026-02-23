@@ -1,4 +1,4 @@
-"""Module for synchronizing local repository states with their remote counterparts."""
+"""Script for synchronizing local repository states with their remote counterparts."""
 
 from datetime import datetime
 from git import Repo
@@ -32,7 +32,7 @@ def _get_remote_main_branch_name(repository: str) -> str:
         .strip()
 
 def _git_checkout_remote_main(repository: str) -> None:
-    """Switch a local repository to its remote counterpart's main branch.
+    """Switch a local repository branch with its remote counterpart's main branch.
     
     Essentially, this is
     - `git checkout -b <REMOTE_MAIN_BRANCH>-<CURRENT_DATETIME>` if already in said branch
@@ -90,10 +90,10 @@ def _git_fetch(repository: str) -> None:
         .url \
         .rstrip(GIT_FILE_TYPE_EXTENSION)
 
-    print(f"Changes from remote repository in {remote_repository_url} have been fetched.")
+    print(f"Changes from remote repository in `{remote_repository_url}` have been fetched.")
     if len(changed_branches) > 0:
         for branch in changed_branches:
-            print(f"Branch {branch} has changes.")
+            print(f"Branch `{branch}` has changes.")
 
 def git_batch_sync() -> None:
     """Synchronize local repository states with their remote counterparts."""
