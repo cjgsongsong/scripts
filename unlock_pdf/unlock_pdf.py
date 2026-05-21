@@ -3,7 +3,7 @@ Script for unlocking a password-protected PDF file.
 """
 
 from os.path import isfile
-from pikepdf import Pdf
+from pikepdf import PasswordError, Pdf
 
 FILE_PATH_INPUT_PROMPT = (
     "Enter the path of the PDF file.\n"
@@ -66,13 +66,16 @@ def unlock_pdf(
     if not _is_valid_pdf(sanitized_file_path):
         raise FileNotFoundError(f"`{sanitized_file_path}` is not a valid PDF file.")
 
-    Pdf \
-        .open(
-            allow_overwriting_input = True,
-            filename_or_stream = sanitized_file_path,
-            password = password,
-        ) \
-        .save(sanitized_file_path)
+    try:
+        Pdf.open(sanitized_file_path)
+    except PasswordError:
+        Pdf \
+            .open(
+                allow_overwriting_input = True,
+                filename_or_stream = sanitized_file_path,
+                password = password,
+            ) \
+            .save(sanitized_file_path)
 
 unlock_pdf(
     file_path = input(FILE_PATH_INPUT_PROMPT),
