@@ -85,10 +85,12 @@ def unlock_pdf(
                     password = password,
                 ) \
                 .save(sanitized_file_path)
+
+            print(f"`{sanitized_file_path}` is now unlocked.")
+        except PasswordError:
+            print(f"`{sanitized_file_path}` is still locked.")
         except Exception as exception:
             raise PdfError(f"Overwriting `{sanitized_file_path}` failed.") from exception
-
-        print(f"`{sanitized_file_path}` is now unlocked.")
 
 unlock_pdf(
     file_path = input(FILE_PATH_INPUT_PROMPT),
