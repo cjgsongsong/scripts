@@ -55,7 +55,11 @@ def unlock_pdf(
     :param password: Password to attempt opening the PDF file with.
     :raises FileNotFoundError: If the file path does not point to a valid PDF file.
     :raises `pikepdf` Error: If the corresponding file cannot be opened or overwritten.
+    :raises ValueError: If the password is an empty string.
     """
+
+    if password == "":
+        raise ValueError("Password cannot be empty.")
 
     sanitized_file_path = _sanitize_file_path(file_path)
 
