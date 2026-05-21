@@ -2,6 +2,7 @@
 Script for unlocking a password-protected PDF file.
 """
 
+from os.path import isfile
 from pikepdf import Pdf
 
 FILE_PATH_INPUT_PROMPT = (
@@ -13,7 +14,23 @@ PASSWORD_INPUT_PROMPT = (
     "Enter next the password to attempt opening the PDF file with.\n"
     ">\n"
 )
+PDF_FILE_EXTENSION = ".pdf"
 QUOTATION_MARK = '"'
+
+def _is_valid_pdf(file_path: str) -> bool:
+    """
+    Validate if the file path
+    - has the PDF file extension, and
+    - points to a valid file.
+
+    :param file_path: Path of the PDF file.
+    :returns: Whether the file path points to a valid PDF file or not.
+    """
+
+    return (
+        file_path.endswith(PDF_FILE_EXTENSION)
+        and isfile(file_path)
+    )
 
 def _sanitize_file_path(file_path: str) -> str:
     """
@@ -36,10 +53,14 @@ def unlock_pdf(
 
     :param file_path: Path of the PDF file.
     :param password: Password to attempt opening the PDF file with.
+    :raises FileNotFoundError: If the file path does not point to a valid PDF file.
     :raises `pikepdf` Error: If the corresponding file cannot be opened or overwritten.
     """
 
     sanitized_file_path = _sanitize_file_path(file_path)
+
+    if not _is_valid_pdf(sanitized_file_path):
+        raise FileNotFoundError(f"`{sanitized_file_path}` is not a valid PDF file.")
 
     Pdf \
         .open(
