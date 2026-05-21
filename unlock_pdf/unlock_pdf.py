@@ -13,6 +13,19 @@ PASSWORD_INPUT_PROMPT = (
     "Enter next the password to attempt opening the PDF file with.\n"
     ">\n"
 )
+QUOTATION_MARK = '"'
+
+def _sanitize_file_path(file_path: str) -> str:
+    """
+    Remove quotation marks from the pasted file path.
+
+    :param file_path: Path of the PDF file.
+    :returns: Sanitized path of the PDF file.
+    """
+
+    return file_path \
+        .removeprefix(QUOTATION_MARK) \
+        .removesuffix(QUOTATION_MARK)
 
 def unlock_pdf(
         file_path: str,
@@ -26,13 +39,15 @@ def unlock_pdf(
     :raises `pikepdf` Error: If the corresponding file cannot be opened or overwritten.
     """
 
+    sanitized_file_path = _sanitize_file_path(file_path)
+
     Pdf \
         .open(
             allow_overwriting_input = True,
-            filename_or_stream = file_path,
+            filename_or_stream = sanitized_file_path,
             password = password,
         ) \
-        .save(file_path)
+        .save(sanitized_file_path)
 
 unlock_pdf(
     file_path = input(FILE_PATH_INPUT_PROMPT),
