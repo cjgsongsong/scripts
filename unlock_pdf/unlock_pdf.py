@@ -15,11 +15,31 @@ FILE_PATH_INPUT_PROMPT = (
 )
 PASSWORD_INPUT_PROMPT = (
     "\n"
-    "Enter next the password to attempt opening the PDF file with.\n"
-    ">\n"
+    "Enter next every password to attempt opening the PDF file with.\n"
+    "Enter an empty string to quit.\n"
+    ">"
 )
 PDF_FILE_EXTENSION = ".pdf"
 QUOTATION_MARK = '"'
+
+def _get_passwords() -> list[str]:
+    """
+    Get password inputs until an empty string is given.
+
+    :returns: List of password inputs.
+    """
+
+    print(PASSWORD_INPUT_PROMPT)
+
+    password = input()
+    passwords: list[str] = []
+
+    while password != "":
+        passwords.append(password)
+
+        password = input()
+
+    return passwords
 
 def _is_valid_pdf(file_path: str) -> bool:
     """
@@ -50,22 +70,20 @@ def _sanitize_file_path(file_path: str) -> str:
 
 def unlock_pdf(
         file_path: str,
-        password: str
+        passwords: list[str]
     ) -> None:
     """
     Overwrite the PDF file as its unprotected version.
 
     :param file_path: Path of the PDF file.
-    :param password: Password to attempt opening the PDF file with.
+    :param passwords: Passwords to attempt opening the PDF file with.
     :raises FileNotFoundError: If the file path does not point to a valid PDF file.
     :raises PdfError: If the corresponding PDF file cannot be overwritten.
-    :raises ValueError: If the password is an empty string.
+    :raises ValueError: If no password was given.
     """
 
-    print("")
-
-    if password == "":
-        raise ValueError("Password cannot be empty.")
+    if not passwords:
+        raise ValueError("At least one password must be given.")
 
     sanitized_file_path = _sanitize_file_path(file_path)
 
@@ -77,22 +95,32 @@ def unlock_pdf(
 
         print(f"`{sanitized_file_path}` is unlocked.")
     except PasswordError:
-        try:
-            Pdf \
-                .open(
-                    allow_overwriting_input = True,
-                    filename_or_stream = sanitized_file_path,
-                    password = password,
-                ) \
-                .save(sanitized_file_path)
+        did_unlock = False
 
+        for password in passwords:
+            try:
+                Pdf \
+                    .open(
+                        allow_overwriting_input = True,
+                        filename_or_stream = sanitized_file_path,
+                        password = password,
+                    ) \
+                    .save(sanitized_file_path)
+
+                did_unlock = True
+
+                break
+            except PasswordError:
+                continue
+            except Exception as exception:
+                raise PdfError(f"Overwriting `{sanitized_file_path}` failed.") from exception
+
+        if did_unlock:
             print(f"`{sanitized_file_path}` is now unlocked.")
-        except PasswordError:
+        else:
             print(f"`{sanitized_file_path}` is still locked.")
-        except Exception as exception:
-            raise PdfError(f"Overwriting `{sanitized_file_path}` failed.") from exception
 
 unlock_pdf(
     file_path = input(FILE_PATH_INPUT_PROMPT),
-    password = input(PASSWORD_INPUT_PROMPT),
+    passwords = _get_passwords()
 )
