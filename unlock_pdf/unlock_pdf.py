@@ -93,7 +93,7 @@ def unlock_pdf(
     try:
         Pdf.open(sanitized_file_path)
 
-        print(f"`{sanitized_file_path}` is unlocked.")
+        print(f"`{sanitized_file_path}` is not locked.")
     except PasswordError:
         did_unlock = False
 
