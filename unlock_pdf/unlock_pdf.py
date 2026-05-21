@@ -58,6 +58,8 @@ def unlock_pdf(
     :raises ValueError: If the password is an empty string.
     """
 
+    print("")
+
     if password == "":
         raise ValueError("Password cannot be empty.")
 
@@ -68,6 +70,8 @@ def unlock_pdf(
 
     try:
         Pdf.open(sanitized_file_path)
+
+        print(f"`{sanitized_file_path}` is unlocked.")
     except PasswordError:
         Pdf \
             .open(
@@ -76,6 +80,8 @@ def unlock_pdf(
                 password = password,
             ) \
             .save(sanitized_file_path)
+
+        print(f"`{sanitized_file_path}` is now unlocked.")
 
 unlock_pdf(
     file_path = input(FILE_PATH_INPUT_PROMPT),
