@@ -152,7 +152,7 @@ def unlock_pdf(
     )
 
     if not pdf_file_paths:
-        raise FileNotFoundError("At least one path must point to a valid PDF file.")
+        raise FileNotFoundError("At least one path must ultimately point to a PDF file.")
 
     for pdf_file_path in pdf_file_paths:
         _unlock_pdf_file(
