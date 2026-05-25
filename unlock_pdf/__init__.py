@@ -1,3 +1,3 @@
 """
-Script for unlocking a password-protected PDF file.
+Script for unlocking password-protected PDF files.
 """

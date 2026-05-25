@@ -1,7 +1,7 @@
 [project]
 name = "unlock-pdf"
 version = "0.3.0"
-description = "Script for unlocking a password-protected PDF file"
+description = "Script for unlocking password-protected PDF files"
 authors = [
     {name = "Siege Songsong",email = "cjgsongsong@gmail.com"}
 ]
