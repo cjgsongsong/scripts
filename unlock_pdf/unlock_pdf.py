@@ -2,6 +2,7 @@
 Script for unlocking password-protected PDF files.
 """
 
+from enum import StrEnum
 from glob import glob
 from os.path import isdir, isfile
 from pikepdf import (
@@ -17,6 +18,28 @@ PATHS_INPUT_PROMPT = "Enter every directory path or file path of the PDF file(s)
 PDF_FILE_EXTENSION = ".pdf"
 PDF_FILE_SEARCH_PATTERN = f"/**/*{PDF_FILE_EXTENSION}"
 QUOTATION_MARK = '"'
+
+class FileState(StrEnum):
+    """Enumeration of states a PDF file may be after an unlock attempt."""
+
+    LOCKED = "still locked"
+    NOT_LOCKED = "not locked"
+    UNLOCKED = "unlocked"
+
+file_state_counts = dict.fromkeys(
+    [file_state for file_state in FileState],
+    0
+)
+
+def _log_file_state_counts() -> None:
+    """Log the counts of every file state after the unlock attempt."""
+
+    print()
+    for file_state, count in file_state_counts.items():
+        be_verb = "is" if count == 1 else "are"
+        plural_suffix = "" if count == 1 else "s"
+
+        print(f"{count} PDF file{plural_suffix} {be_verb} {file_state.value}.")
 
 def _get_inputs(prompt: str) -> list[str]:
     """
@@ -100,6 +123,8 @@ def _unlock_pdf_file(
     try:
         Pdf.open(file_path)
 
+        file_state_counts[FileState.NOT_LOCKED] += 1
+
         print(f"`{file_path}` is not locked.")
     except PasswordError:
         did_unlock = False
@@ -123,8 +148,12 @@ def _unlock_pdf_file(
                 raise PdfError(f"Unlocking `{file_path}` failed.") from exception
 
         if did_unlock:
+            file_state_counts[FileState.UNLOCKED] += 1
+
             print(f"`{file_path}` is now unlocked.")
         else:
+            file_state_counts[FileState.LOCKED] += 1
+
             print(f"`{file_path}` is still locked.")
 
 def unlock_pdf(
@@ -159,6 +188,8 @@ def unlock_pdf(
             file_path = pdf_file_path,
             passwords = passwords
         )
+
+    _log_file_state_counts()
 
 # Enforce input order via parameter order
 unlock_pdf(
