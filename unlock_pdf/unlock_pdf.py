@@ -160,7 +160,8 @@ def unlock_pdf(
             passwords = passwords
         )
 
+# Enforce input order via parameter order
 unlock_pdf(
-    passwords = _get_inputs(PASSWORD_INPUT_PROMPT),
-    paths = _get_inputs(PATH_INPUT_PROMPT)
+    paths = _get_inputs(PATH_INPUT_PROMPT),
+    passwords = _get_inputs(PASSWORD_INPUT_PROMPT)
 )
