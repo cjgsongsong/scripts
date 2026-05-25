@@ -24,24 +24,6 @@ PDF_FILE_EXTENSION = ".pdf"
 PDF_FILE_SEARCH_PATTERN = f"/**/*{PDF_FILE_EXTENSION}"
 QUOTATION_MARK = '"'
 
-def _get_pdf_paths(path: str) -> list[str]:
-    """
-    Get the path(s) of PDF file(s) in the given path.
-
-    :param path: Path of either the directory containing the PDF file(s) or the PDF file.
-    :returns: List of paths of PDF files.
-    """
-
-    if isdir(path):
-        return glob(
-            pathname = path + PDF_FILE_SEARCH_PATTERN,
-            recursive = True
-        )
-    elif _is_valid_pdf(path):
-        return [path]
-
-    return []
-
 def _get_passwords() -> list[str]:
     """
     Get password inputs until an empty string is given.
@@ -61,14 +43,32 @@ def _get_passwords() -> list[str]:
 
     return passwords
 
-def _is_valid_pdf(file_path: str) -> bool:
+def _get_pdf_file_paths(path: str) -> list[str]:
+    """
+    Get the path(s) of PDF file(s) in the given path.
+
+    :param path: Path of either the directory containing the PDF file(s) or the PDF file.
+    :returns: List of paths of PDF files.
+    """
+
+    if isdir(path):
+        return glob(
+            pathname = path + PDF_FILE_SEARCH_PATTERN,
+            recursive = True
+        )
+    elif _is_pdf_file(path):
+        return [path]
+
+    return []
+
+def _is_pdf_file(file_path: str) -> bool:
     """
     Validate if the file path
     - has the PDF file extension, and
-    - points to a valid file.
+    - points to a file.
 
     :param file_path: Path of the PDF file.
-    :returns: Whether the file path points to a valid PDF file or not.
+    :returns: Whether the file path points to a PDF file or not.
     """
 
     return (
@@ -80,30 +80,30 @@ def _sanitize_path(path: str) -> str:
     """
     Remove quotation marks from the pasted path.
 
-    :param path: Path of either the directory containing the PDF file(s) or the PDF file..
-    :returns: Sanitized path of either the directory containing the PDF files or the PDF file.
+    :param path: Path of either the directory containing the PDF file(s) or the PDF file.
+    :returns: Sanitized path.
     """
 
     return path \
         .removeprefix(QUOTATION_MARK) \
         .removesuffix(QUOTATION_MARK)
 
-def _unlock_pdf(
-        passwords: list[str],
-        path: str
+def _unlock_pdf_file(
+        file_path: str,
+        passwords: list[str]
     ) -> None:
     """
     Overwrite the PDF file as its unlocked version.
 
+    :param file_path: Sanitized path of the PDF file.
     :param passwords: Passwords to attempt opening the PDF file with.
-    :param path: Sanitized path of the PDF file.
     :raises PdfError: If unlocking the PDF file via `pikepdf` failed.
     """
 
     try:
-        Pdf.open(path)
+        Pdf.open(file_path)
 
-        print(f"`{path}` is not locked.")
+        print(f"`{file_path}` is not locked.")
     except PasswordError:
         did_unlock = False
 
@@ -112,10 +112,10 @@ def _unlock_pdf(
                 Pdf \
                     .open(
                         allow_overwriting_input = True,
-                        filename_or_stream = path,
+                        filename_or_stream = file_path,
                         password = password,
                     ) \
-                    .save(path)
+                    .save(file_path)
 
                 did_unlock = True
 
@@ -123,12 +123,12 @@ def _unlock_pdf(
             except PasswordError:
                 continue
             except Exception as exception:
-                raise PdfError(f"Unlocking `{path}` failed.") from exception
+                raise PdfError(f"Unlocking `{file_path}` failed.") from exception
 
         if did_unlock:
-            print(f"`{path}` is now unlocked.")
+            print(f"`{file_path}` is now unlocked.")
         else:
-            print(f"`{path}` is still locked.")
+            print(f"`{file_path}` is still locked.")
 
 def unlock_pdf(
         passwords: list[str],
@@ -139,7 +139,7 @@ def unlock_pdf(
 
     :param passwords: Passwords to attempt opening the PDF files with.
     :param path: Path of either the directory containing the PDF file(s) or the PDF file.
-    :raises FileNotFoundError: If the path and its subpaths do not point to any valid PDF file.
+    :raises FileNotFoundError: If the path and its subpaths do not point to any PDF file.
     :raises PdfError: If unlocking a PDF file via `_unlock_pdf` failed.
     :raises ValueError: If no password was given.
     """
@@ -147,7 +147,7 @@ def unlock_pdf(
     if not passwords:
         raise ValueError("At least one password must be given.")
 
-    pdf_file_paths = _get_pdf_paths(
+    pdf_file_paths = _get_pdf_file_paths(
         _sanitize_path(path)
     )
 
@@ -155,9 +155,9 @@ def unlock_pdf(
         raise FileNotFoundError("At least one path must point to a valid PDF file.")
 
     for pdf_file_path in pdf_file_paths:
-        _unlock_pdf(
-            passwords = passwords,
-            path = pdf_file_path
+        _unlock_pdf_file(
+            file_path = pdf_file_path,
+            passwords = passwords
         )
 
 unlock_pdf(
