@@ -10,38 +10,35 @@ from pikepdf import (
     PdfError,
 )
 
-PASSWORD_INPUT_PROMPT = (
-    "\n"
-    "Enter every password to attempt opening the PDF file(s) with.\n"
-    "Enter an empty string to quit.\n"
-    ">"
-)
-PATH_INPUT_PROMPT = (
-    "Enter the directory or file path of the PDF file(s).\n"
-    ">\n"
-)
+END_INPUT_PROMPT = "Enter an empty string to quit."
+INPUT_MARKER = ">"
+PASSWORD_INPUT_PROMPT = "Enter every password to attempt unlocking the PDF file(s) with."
+PATH_INPUT_PROMPT = "Enter every directory path or file path of the PDF file(s) to unlock."
 PDF_FILE_EXTENSION = ".pdf"
 PDF_FILE_SEARCH_PATTERN = f"/**/*{PDF_FILE_EXTENSION}"
 QUOTATION_MARK = '"'
 
-def _get_passwords() -> list[str]:
+def _get_inputs(prompt: str) -> list[str]:
     """
-    Get password inputs until an empty string is given.
-
-    :returns: List of password inputs.
+    Get inputs until an empty string is given.
+    
+    :param prompt: Prompt on what inputs are being asked of the user.
+    :returns: List of inputs
     """
 
-    print(PASSWORD_INPUT_PROMPT)
+    print(prompt)
+    print(END_INPUT_PROMPT)
+    print(INPUT_MARKER)
 
-    password = input()
-    passwords: list[str] = []
+    user_input = input()
+    user_inputs: list[str] = []
 
-    while password != "":
-        passwords.append(password)
+    while user_input != "":
+        user_inputs.append(user_input)
 
-        password = input()
+        user_input = input()
 
-    return passwords
+    return user_inputs
 
 def _get_pdf_file_paths(path: str) -> list[str]:
     """
@@ -132,14 +129,14 @@ def _unlock_pdf_file(
 
 def unlock_pdf(
         passwords: list[str],
-        path: str
+        paths: list[str]
     ) -> None:
     """
     Unlock password-protected PDF files in the specified path.
 
     :param passwords: Passwords to attempt opening the PDF files with.
     :param path: Path of either the directory containing the PDF file(s) or the PDF file.
-    :raises FileNotFoundError: If the path and its subpaths do not point to any PDF file.
+    :raises FileNotFoundError: If every path and its subpaths do not point to any PDF file.
     :raises PdfError: If unlocking a PDF file via `_unlock_pdf` failed.
     :raises ValueError: If no password was given.
     """
@@ -147,9 +144,12 @@ def unlock_pdf(
     if not passwords:
         raise ValueError("At least one password must be given.")
 
-    pdf_file_paths = _get_pdf_file_paths(
-        _sanitize_path(path)
-    )
+    pdf_file_paths: list[str] = []
+
+    for path in paths:
+        pdf_file_paths += _get_pdf_file_paths(
+            _sanitize_path(path)
+        )
 
     if not pdf_file_paths:
         raise FileNotFoundError("At least one path must ultimately point to a PDF file.")
@@ -161,6 +161,6 @@ def unlock_pdf(
         )
 
 unlock_pdf(
-    passwords = _get_passwords(),
-    path = input(PATH_INPUT_PROMPT)
+    passwords = _get_inputs(PASSWORD_INPUT_PROMPT),
+    paths = _get_inputs(PATH_INPUT_PROMPT)
 )
