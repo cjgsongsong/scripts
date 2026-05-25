@@ -11,9 +11,9 @@ from pikepdf import (
 )
 
 END_INPUT_PROMPT = "Enter an empty string to quit."
-INPUT_MARKER = ">"
-PASSWORD_INPUT_PROMPT = "Enter every password to attempt unlocking the PDF file(s) with."
-PATH_INPUT_PROMPT = "Enter every directory path or file path of the PDF file(s) to unlock."
+INPUT_DELIMITER = ">"
+PASSWORDS_INPUT_PROMPT = "Enter every password to attempt unlocking the PDF file(s) with."
+PATHS_INPUT_PROMPT = "Enter every directory path or file path of the PDF file(s) to unlock."
 PDF_FILE_EXTENSION = ".pdf"
 PDF_FILE_SEARCH_PATTERN = f"/**/*{PDF_FILE_EXTENSION}"
 QUOTATION_MARK = '"'
@@ -28,7 +28,7 @@ def _get_inputs(prompt: str) -> list[str]:
 
     print(prompt)
     print(END_INPUT_PROMPT)
-    print(INPUT_MARKER)
+    print(INPUT_DELIMITER)
 
     user_input = input()
     user_inputs: list[str] = []
@@ -162,6 +162,6 @@ def unlock_pdf(
 
 # Enforce input order via parameter order
 unlock_pdf(
-    paths = _get_inputs(PATH_INPUT_PROMPT),
-    passwords = _get_inputs(PASSWORD_INPUT_PROMPT)
+    paths = _get_inputs(PATHS_INPUT_PROMPT),
+    passwords = _get_inputs(PASSWORDS_INPUT_PROMPT)
 )
