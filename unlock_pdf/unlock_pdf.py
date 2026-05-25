@@ -93,7 +93,7 @@ def _unlock_pdf_file(
     Overwrite the PDF file as its unlocked version.
 
     :param file_path: Sanitized path of the PDF file.
-    :param passwords: Passwords to attempt opening the PDF file with.
+    :param passwords: Passwords to attempt unlocking the PDF file with.
     :raises PdfError: If unlocking the PDF file via `pikepdf` failed.
     """
 
@@ -134,7 +134,7 @@ def unlock_pdf(
     """
     Unlock password-protected PDF files in the specified path.
 
-    :param passwords: Passwords to attempt opening the PDF files with.
+    :param passwords: Passwords to attempt unlocking the PDF files with.
     :param path: Path of either the directory containing the PDF file(s) or the PDF file.
     :raises FileNotFoundError: If every path and its subpaths do not point to any PDF file.
     :raises PdfError: If unlocking a PDF file via `_unlock_pdf` failed.
