@@ -10,11 +10,8 @@ from pikepdf import (
     Pdf,
     PdfError,
 )
+from typing import Literal
 
-END_INPUT_PROMPT = "Enter an empty string to quit."
-INPUT_DELIMITER = ">"
-PASSWORDS_INPUT_PROMPT = "Enter every password to attempt unlocking the PDF file(s) with."
-PATHS_INPUT_PROMPT = "Enter every directory path or file path of the PDF file(s) to unlock."
 PDF_FILE_EXTENSION = ".pdf"
 PDF_FILE_SEARCH_PATTERN = f"/**/*{PDF_FILE_EXTENSION}"
 QUOTATION_MARK = '"'
@@ -25,6 +22,14 @@ class FileState(StrEnum):
     LOCKED = "still locked"
     NOT_LOCKED = "not locked"
     UNLOCKED = "unlocked"
+
+class InputPrompt(StrEnum):
+    """Enumeration of input prompt constants."""
+
+    END = "Enter an empty string to quit."
+    MARKER = ">"
+    PASSWORDS = "Enter every password to attempt unlocking the PDF file(s) with."
+    PATHS = "Enter every directory path or file path of the PDF file(s) to unlock."
 
 file_state_counts = dict.fromkeys(
     [file_state for file_state in FileState],
@@ -41,7 +46,7 @@ def _log_file_state_counts() -> None:
 
         print(f"{count} PDF file{plural_suffix} {be_verb} {file_state.value}.")
 
-def _get_inputs(prompt: str) -> list[str]:
+def _get_inputs(prompt: Literal[InputPrompt.PASSWORDS, InputPrompt.PATHS]) -> list[str]:
     """
     Get inputs until an empty string is given.
     
@@ -50,8 +55,8 @@ def _get_inputs(prompt: str) -> list[str]:
     """
 
     print(prompt)
-    print(END_INPUT_PROMPT)
-    print(INPUT_DELIMITER)
+    print(InputPrompt.END)
+    print(InputPrompt.MARKER)
 
     user_input = input()
     user_inputs: list[str] = []
@@ -193,6 +198,6 @@ def unlock_pdf(
 
 # Enforce input order via parameter order
 unlock_pdf(
-    paths = _get_inputs(PATHS_INPUT_PROMPT),
-    passwords = _get_inputs(PASSWORDS_INPUT_PROMPT)
+    paths = _get_inputs(InputPrompt.PATHS),
+    passwords = _get_inputs(InputPrompt.PASSWORDS)
 )
