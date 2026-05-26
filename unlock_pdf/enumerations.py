@@ -69,3 +69,8 @@ class Path(StrEnum):
     PDF_FILE_EXTENSION = ".pdf"
     PDF_FILE_SEARCH_PATTERN = "/**/*.pdf"
     QUOTATION_MARK = '"'
+
+class Python(StrEnum):
+    """Enumeration of Python constants."""
+
+    DIRECT_EXECUTION_TOP_LEVEL_CODE = "__main__"
