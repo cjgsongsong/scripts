@@ -52,21 +52,6 @@ class Path(StrEnum):
     PDF_FILE_SEARCH_PATTERN = "/**/*.pdf"
     QUOTATION_MARK = '"'
 
-file_state_counts = dict.fromkeys(
-    [file_state for file_state in FileState],
-    0
-)
-
-def _log_file_state_counts() -> None:
-    """Log the counts of every file state after the unlock attempt."""
-
-    print()
-    for file_state, count in file_state_counts.items():
-        be_verb = "is" if count == 1 else "are"
-        plural_suffix = "" if count == 1 else "s"
-
-        print(f"{count} PDF file{plural_suffix} {be_verb} {file_state.value}.")
-
 def _get_inputs(prompt: Literal[InputPrompt.PASSWORDS, InputPrompt.PATHS]) -> list[str]:
     """
     Get inputs until an empty string is given.
@@ -122,6 +107,28 @@ def _is_pdf_file(file_path: str) -> bool:
         and isfile(file_path)
     )
 
+def _log_unlock_attempt() -> None:
+    """
+    Log after the unlock attempt per file state
+    - how many PDF files resulted to such state, and
+    - what are the paths to said PDF files.
+    """
+
+    for file_state, pdf_file_paths in grouped_pdf_file_paths.items():
+        count = len(pdf_file_paths)
+
+        be_verb = "is" if count == 1 else "are"
+        plural_suffix = "" if count == 1 else "s"
+
+        print(f"{count} PDF file{plural_suffix} {be_verb} {file_state.value}:")
+        if count:
+            for pdf_file_path in pdf_file_paths:
+                print(pdf_file_path)
+        else:
+            print("-")
+
+        print()
+
 def _sanitize_path(path: str) -> str:
     """
     Remove quotation marks from the pasted path.
@@ -149,9 +156,9 @@ def _unlock_pdf_file(
     try:
         Pdf.open(file_path)
 
-        file_state_counts[FileState.NOT_LOCKED] += 1
-
-        print(f"`{file_path}` is not locked.")
+        grouped_pdf_file_paths \
+            [FileState.NOT_LOCKED] \
+            .append(file_path)
     except PasswordError:
         did_unlock = False
 
@@ -175,14 +182,9 @@ def _unlock_pdf_file(
                     ErrorMessage.FAILED_OVERWRITE(file_path)
                 ) from exception
 
-        if did_unlock:
-            file_state_counts[FileState.UNLOCKED] += 1
-
-            print(f"`{file_path}` is now unlocked.")
-        else:
-            file_state_counts[FileState.LOCKED] += 1
-
-            print(f"`{file_path}` is still locked.")
+        grouped_pdf_file_paths \
+            [FileState.UNLOCKED if did_unlock else FileState.LOCKED] \
+            .append(file_path)
 
 def unlock_pdf(
         passwords: list[str],
@@ -217,7 +219,14 @@ def unlock_pdf(
             passwords = passwords
         )
 
-    _log_file_state_counts()
+    _log_unlock_attempt()
+
+grouped_pdf_file_paths: dict[FileState, list[str]] = {
+    key: []
+    for key in [
+        file_state for file_state in FileState
+    ]
+}
 
 # Enforce input order via parameter order
 unlock_pdf(
