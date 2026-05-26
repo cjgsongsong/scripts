@@ -40,7 +40,32 @@ def _get_inputs(prompt: Literal[InputPrompt.PASSWORDS, InputPrompt.PATHS]) -> se
 
     return user_inputs
 
-def _get_pdf_file_paths(path: str) -> list[str]:
+def _get_pdf_file_paths() -> set[str]:
+    """
+    Get the paths of the PDF files from inputted paths to
+    - directories containing the PDF files, and/or
+    - PDF files themselves.
+
+    :raises FileNotFoundError: If every given path and their subpaths do not point to any PDF file.
+    :returns: Set of determined paths to each PDF file.
+    """
+
+    paths = _get_inputs(InputPrompt.PATHS)
+    pdf_file_paths: set[str] = set()
+
+    for path in paths:
+        pdf_file_paths.update(
+            _get_pdf_file_subpaths(
+                _sanitize_path(path)
+            )
+        )
+
+    if not pdf_file_paths:
+        raise FileNotFoundError(ErrorMessage.NO_VALID_PATH)
+
+    return pdf_file_paths
+
+def _get_pdf_file_subpaths(path: str) -> list[str]:
     """
     Get the path(s) of PDF file(s) in the given path.
 
@@ -167,29 +192,15 @@ def unlock_pdf() -> None:
       - PDF files themselves, and
     - passwords to attempt unlocking the PDF files with.
 
-    :raises FileNotFoundError: If every path and its subpaths do not point to any PDF file.
+    :raises FileNotFoundError: If every given path and their subpaths do not point to any PDF file.
     :raises PdfError: If unlocking a PDF file via `_unlock_pdf` failed.
     :raises ValueError: If no password was given.
     """
 
-    # Enforce input order via order of variable declaration.
-    paths = _get_inputs(InputPrompt.PATHS)
     passwords = _get_inputs(InputPrompt.PASSWORDS)
 
     if not passwords:
         raise ValueError(ErrorMessage.NO_VALID_PASSWORD)
-
-    pdf_file_paths: set[str] = set()
-
-    for path in paths:
-        pdf_file_paths.update(
-            _get_pdf_file_paths(
-                _sanitize_path(path)
-            )
-        )
-
-    if not pdf_file_paths:
-        raise FileNotFoundError(ErrorMessage.NO_VALID_PATH)
 
     grouped_pdf_file_paths: dict[FileState, list[str]] = {
         key: []
@@ -197,6 +208,7 @@ def unlock_pdf() -> None:
             file_state for file_state in FileState
         ]
     }
+    pdf_file_paths = _get_pdf_file_paths()
 
     for pdf_file_path in pdf_file_paths:
         _unlock_pdf_file(
