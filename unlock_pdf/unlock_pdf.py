@@ -2,7 +2,7 @@
 Script for unlocking password-protected PDF files.
 """
 
-from enum import StrEnum
+from enum import Enum, StrEnum
 from glob import glob
 from os.path import isdir, isfile
 from pikepdf import (
@@ -15,6 +15,24 @@ from typing import Literal
 PDF_FILE_EXTENSION = ".pdf"
 PDF_FILE_SEARCH_PATTERN = f"/**/*{PDF_FILE_EXTENSION}"
 QUOTATION_MARK = '"'
+
+class ErrorMessage(Enum):
+    """Enumeration of error messages."""
+
+    @classmethod
+    def _generate_failed_overwrite_error_message(cls, file_path: str) -> str:
+        """
+        Generate an error message for failed overwrite based on the path of the PDF file.
+        
+        :param file_path: Path of the PDF file.
+        :returns: Error message for failed overwrite.
+        """
+
+        return f"Unlocking `{file_path}` failed."
+
+    FAILED_OVERWRITE = _generate_failed_overwrite_error_message
+    NO_VALID_PASSWORD = "At least one password must be given."
+    NO_VALID_PATH = "At least one path must ultimately point to a PDF file."
 
 class FileState(StrEnum):
     """Enumeration of states a PDF file may be after an unlock attempt."""
@@ -150,7 +168,9 @@ def _unlock_pdf_file(
             except PasswordError:
                 continue
             except Exception as exception:
-                raise PdfError(f"Unlocking `{file_path}` failed.") from exception
+                raise PdfError(
+                    ErrorMessage.FAILED_OVERWRITE(file_path)
+                ) from exception
 
         if did_unlock:
             file_state_counts[FileState.UNLOCKED] += 1
@@ -176,7 +196,7 @@ def unlock_pdf(
     """
 
     if not passwords:
-        raise ValueError("At least one password must be given.")
+        raise ValueError(ErrorMessage.NO_VALID_PASSWORD)
 
     pdf_file_paths: list[str] = []
 
@@ -186,7 +206,7 @@ def unlock_pdf(
         )
 
     if not pdf_file_paths:
-        raise FileNotFoundError("At least one path must ultimately point to a PDF file.")
+        raise FileNotFoundError(ErrorMessage.NO_VALID_PATH)
 
     for pdf_file_path in pdf_file_paths:
         _unlock_pdf_file(
