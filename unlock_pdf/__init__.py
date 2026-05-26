@@ -1,3 +1,1 @@
-"""
-Script for unlocking password-protected PDF files.
-"""
+"""Script for unlocking password-protected PDF files."""
