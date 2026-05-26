@@ -12,10 +12,6 @@ from pikepdf import (
 )
 from typing import Literal
 
-PDF_FILE_EXTENSION = ".pdf"
-PDF_FILE_SEARCH_PATTERN = f"/**/*{PDF_FILE_EXTENSION}"
-QUOTATION_MARK = '"'
-
 class ErrorMessage(Enum):
     """Enumeration of error messages."""
 
@@ -48,6 +44,13 @@ class InputPrompt(StrEnum):
     MARKER = ">"
     PASSWORDS = "Enter every password to attempt unlocking the PDF file(s) with."
     PATHS = "Enter every directory path or file path of the PDF file(s) to unlock."
+
+class Path(StrEnum):
+    """Enumeration of path constants."""
+
+    PDF_FILE_EXTENSION = ".pdf"
+    PDF_FILE_SEARCH_PATTERN = "/**/*.pdf"
+    QUOTATION_MARK = '"'
 
 file_state_counts = dict.fromkeys(
     [file_state for file_state in FileState],
@@ -96,7 +99,7 @@ def _get_pdf_file_paths(path: str) -> list[str]:
 
     if isdir(path):
         return glob(
-            pathname = path + PDF_FILE_SEARCH_PATTERN,
+            pathname = path + Path.PDF_FILE_SEARCH_PATTERN,
             recursive = True
         )
     elif _is_pdf_file(path):
@@ -115,7 +118,7 @@ def _is_pdf_file(file_path: str) -> bool:
     """
 
     return (
-        file_path.endswith(PDF_FILE_EXTENSION)
+        file_path.endswith(Path.PDF_FILE_EXTENSION)
         and isfile(file_path)
     )
 
@@ -128,8 +131,8 @@ def _sanitize_path(path: str) -> str:
     """
 
     return path \
-        .removeprefix(QUOTATION_MARK) \
-        .removesuffix(QUOTATION_MARK)
+        .removeprefix(Path.QUOTATION_MARK) \
+        .removesuffix(Path.QUOTATION_MARK)
 
 def _unlock_pdf_file(
         file_path: str,
