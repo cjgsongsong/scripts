@@ -45,6 +45,33 @@ class InputPrompt(StrEnum):
     PASSWORDS = "Enter every password to attempt unlocking the PDF file(s) with."
     PATHS = "Enter every directory path or file path of the PDF file(s) to unlock."
 
+class LogMessage(Enum):
+    """Enumeration of log messages."""
+
+    @classmethod
+    def _generate_file_state_count_log_message(
+        cls,
+        file_state: FileState,
+        file_state_count: int
+    ) -> str:
+        """
+        Generate a log message based on
+        - the file state, and
+        - the number of PDF files counted to be of said file state.
+
+        :param file_state: State of the PDF file(s) after an unlock attempt.
+        :param file_state_count: Number of PDF files counted to be of said file state.
+        :returns: Log message for the file state's count.
+        """
+
+        be_verb = "is" if file_state_count == 1 else "are"
+        plural_suffix = "" if file_state_count == 1 else "s"
+
+        return f"{file_state_count} PDF file{plural_suffix} {be_verb} {file_state.value}:"
+
+    FILE_STATE_COUNT = _generate_file_state_count_log_message
+    NO_PDF_FILE_PATH = "-"
+
 class Path(StrEnum):
     """Enumeration of path constants."""
 
@@ -115,17 +142,20 @@ def _log_unlock_attempt() -> None:
     """
 
     for file_state, pdf_file_paths in grouped_pdf_file_paths.items():
-        count = len(pdf_file_paths)
+        file_state_count = len(pdf_file_paths)
 
-        be_verb = "is" if count == 1 else "are"
-        plural_suffix = "" if count == 1 else "s"
+        print(
+            LogMessage.FILE_STATE_COUNT(
+                file_state = file_state,
+                file_state_count = file_state_count
+            )
+        )
 
-        print(f"{count} PDF file{plural_suffix} {be_verb} {file_state.value}:")
-        if count:
+        if file_state_count:
             for pdf_file_path in pdf_file_paths:
                 print(pdf_file_path)
         else:
-            print("-")
+            print(LogMessage.NO_PDF_FILE_PATH)
 
         print()
 
