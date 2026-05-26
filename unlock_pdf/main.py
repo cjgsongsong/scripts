@@ -73,11 +73,13 @@ def _is_pdf_file(file_path: str) -> bool:
         and isfile(file_path)
     )
 
-def _log_unlock_attempt() -> None:
+def _log_unlock_attempt(grouped_pdf_file_paths: dict[FileState, list[str]]) -> None:
     """
     Log after the unlock attempt per file state
     - how many PDF files resulted to such state, and
     - what are the paths to said PDF files.
+
+    :param grouped_pdf_file_paths: Dictionary that maps file states with PDF file paths.
     """
 
     for file_state, pdf_file_paths in grouped_pdf_file_paths.items():
@@ -112,12 +114,14 @@ def _sanitize_path(path: str) -> str:
 
 def _unlock_pdf_file(
         file_path: str,
+        grouped_pdf_file_paths: dict[FileState, list[str]],
         passwords: set[str]
     ) -> None:
     """
     Overwrite the PDF file as its unlocked version.
 
     :param file_path: Sanitized path of the PDF file.
+    :param grouped_pdf_file_paths: Dictionary that maps file states with PDF file paths.
     :param passwords: Passwords to attempt unlocking the PDF file with.
     :raises PdfError: If unlocking the PDF file via `pikepdf` failed.
     """
@@ -187,19 +191,20 @@ def unlock_pdf() -> None:
     if not pdf_file_paths:
         raise FileNotFoundError(ErrorMessage.NO_VALID_PATH)
 
+    grouped_pdf_file_paths: dict[FileState, list[str]] = {
+        key: []
+        for key in [
+            file_state for file_state in FileState
+        ]
+    }
+
     for pdf_file_path in pdf_file_paths:
         _unlock_pdf_file(
+            grouped_pdf_file_paths = grouped_pdf_file_paths,
             file_path = pdf_file_path,
             passwords = passwords
         )
 
-    _log_unlock_attempt()
-
-grouped_pdf_file_paths: dict[FileState, list[str]] = {
-    key: []
-    for key in [
-        file_state for file_state in FileState
-    ]
-}
+    _log_unlock_attempt(grouped_pdf_file_paths)
 
 unlock_pdf()
