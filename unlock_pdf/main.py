@@ -2,7 +2,8 @@
 Script for unlocking password-protected PDF files.
 """
 
-from enum import Enum, StrEnum
+from classes import MessageEnum
+from enum import StrEnum
 from glob import glob
 from os.path import isdir, isfile
 from pikepdf import (
@@ -11,19 +12,6 @@ from pikepdf import (
     PdfError,
 )
 from typing import Literal
-
-class MessageEnum(Enum):
-    """`Enum` wrapper to emulate `StrEnum` behavior for its members with string values."""
-    def __str__(self) -> str:
-        """
-        Override `Enum`'s default `__str__` behavior to return the member's value when accessing
-        said member if said value is a string.
-        """
-        return (
-            self.value
-            if isinstance(self.value, str)
-            else super().__str__()
-        )
 
 class ErrorMessage(MessageEnum):
     """Enumeration of error messages."""
