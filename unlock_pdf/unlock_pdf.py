@@ -231,7 +231,7 @@ def _unlock_pdf_file(
 
 def unlock_pdf(
         passwords: set[str],
-        paths: list[str]
+        paths: set[str]
     ) -> None:
     """
     Unlock password-protected PDF files in the specified path.
@@ -246,11 +246,13 @@ def unlock_pdf(
     if not passwords:
         raise ValueError(ErrorMessage.NO_VALID_PASSWORD)
 
-    pdf_file_paths: list[str] = []
+    pdf_file_paths: set[str] = set()
 
     for path in paths:
-        pdf_file_paths += _get_pdf_file_paths(
-            _sanitize_path(path)
+        pdf_file_paths.update(
+            _get_pdf_file_paths(
+                _sanitize_path(path)
+            )
         )
 
     if not pdf_file_paths:
@@ -273,8 +275,6 @@ grouped_pdf_file_paths: dict[FileState, list[str]] = {
 
 # Enforce input order via parameter order
 unlock_pdf(
-    paths = list(
-        _get_inputs(InputPrompt.PATHS)
-    ),
+    paths = _get_inputs(InputPrompt.PATHS),
     passwords = _get_inputs(InputPrompt.PASSWORDS)
 )
