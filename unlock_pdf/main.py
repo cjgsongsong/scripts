@@ -1,6 +1,4 @@
-"""
-Script for unlocking password-protected PDF files.
-"""
+"""`unlock-pdf` entry point."""
 
 from functions import unlock_pdf
 
