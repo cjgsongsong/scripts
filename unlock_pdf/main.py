@@ -40,6 +40,21 @@ def _get_inputs(prompt: Literal[InputPrompt.PASSWORDS, InputPrompt.PATHS]) -> se
 
     return user_inputs
 
+def _get_passwords() -> set[str]:
+    """
+    Get from inputs the passwords to attempt unlocking the PDF files with.
+
+    :raises ValueError: If no password was given.
+    :returns: Set of passwords to attempt unlocking PDF files with.
+    """
+
+    passwords = _get_inputs(InputPrompt.PASSWORDS)
+
+    if not passwords:
+        raise ValueError(ErrorMessage.NO_VALID_PASSWORD)
+
+    return passwords
+
 def _get_pdf_file_paths() -> set[str]:
     """
     Get the paths of the PDF files from inputted paths to
@@ -197,17 +212,13 @@ def unlock_pdf() -> None:
     :raises ValueError: If no password was given.
     """
 
-    passwords = _get_inputs(InputPrompt.PASSWORDS)
-
-    if not passwords:
-        raise ValueError(ErrorMessage.NO_VALID_PASSWORD)
-
     grouped_pdf_file_paths: dict[FileState, list[str]] = {
         key: []
         for key in [
             file_state for file_state in FileState
         ]
     }
+    passwords = _get_passwords()
     pdf_file_paths = _get_pdf_file_paths()
 
     for pdf_file_path in pdf_file_paths:
