@@ -92,7 +92,7 @@ class Path(StrEnum):
     PDF_FILE_SEARCH_PATTERN = "/**/*.pdf"
     QUOTATION_MARK = '"'
 
-def _get_inputs(prompt: Literal[InputPrompt.PASSWORDS, InputPrompt.PATHS]) -> list[str]:
+def _get_inputs(prompt: Literal[InputPrompt.PASSWORDS, InputPrompt.PATHS]) -> set[str]:
     """
     Get inputs until an empty string is given.
     
@@ -105,10 +105,10 @@ def _get_inputs(prompt: Literal[InputPrompt.PASSWORDS, InputPrompt.PATHS]) -> li
     print(InputPrompt.MARKER)
 
     user_input = input()
-    user_inputs: list[str] = []
+    user_inputs: set[str] = set()
 
     while user_input != "":
-        user_inputs.append(user_input)
+        user_inputs.add(user_input)
 
         user_input = input()
 
@@ -186,7 +186,7 @@ def _sanitize_path(path: str) -> str:
 
 def _unlock_pdf_file(
         file_path: str,
-        passwords: list[str]
+        passwords: set[str]
     ) -> None:
     """
     Overwrite the PDF file as its unlocked version.
@@ -230,7 +230,7 @@ def _unlock_pdf_file(
             .append(file_path)
 
 def unlock_pdf(
-        passwords: list[str],
+        passwords: set[str],
         paths: list[str]
     ) -> None:
     """
@@ -273,6 +273,8 @@ grouped_pdf_file_paths: dict[FileState, list[str]] = {
 
 # Enforce input order via parameter order
 unlock_pdf(
-    paths = _get_inputs(InputPrompt.PATHS),
+    paths = list(
+        _get_inputs(InputPrompt.PATHS)
+    ),
     passwords = _get_inputs(InputPrompt.PASSWORDS)
 )
