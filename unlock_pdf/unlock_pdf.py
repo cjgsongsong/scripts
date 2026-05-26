@@ -12,7 +12,20 @@ from pikepdf import (
 )
 from typing import Literal
 
-class ErrorMessage(Enum):
+class MessageEnum(Enum):
+    """`Enum` wrapper to emulate `StrEnum` behavior for its members with string values."""
+    def __str__(self) -> str:
+        """
+        Override `Enum`'s default `__str__` behavior to return the member's value when accessing
+        said member if said value is a string.
+        """
+        return (
+            self.value
+            if isinstance(self.value, str)
+            else super().__str__()
+        )
+
+class ErrorMessage(MessageEnum):
     """Enumeration of error messages."""
 
     @classmethod
@@ -45,7 +58,7 @@ class InputPrompt(StrEnum):
     PASSWORDS = "Enter every password to attempt unlocking the PDF file(s) with."
     PATHS = "Enter every directory path or file path of the PDF file(s) to unlock."
 
-class LogMessage(Enum):
+class LogMessage(MessageEnum):
     """Enumeration of log messages."""
 
     @classmethod
