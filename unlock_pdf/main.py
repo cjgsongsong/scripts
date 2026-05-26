@@ -155,19 +155,22 @@ def _unlock_pdf_file(
             [FileState.UNLOCKED if did_unlock else FileState.LOCKED] \
             .append(file_path)
 
-def unlock_pdf(
-        passwords: set[str],
-        paths: set[str]
-    ) -> None:
+def unlock_pdf() -> None:
     """
-    Unlock password-protected PDF files in the specified path.
+    Unlock password-protected PDF files after inputting
+    - paths to
+      - directories containing the PDF files, and/or
+      - PDF files themselves, and
+    - passwords to attempt unlocking the PDF files with.
 
-    :param passwords: Passwords to attempt unlocking the PDF files with.
-    :param path: Path of either the directory containing the PDF file(s) or the PDF file.
     :raises FileNotFoundError: If every path and its subpaths do not point to any PDF file.
     :raises PdfError: If unlocking a PDF file via `_unlock_pdf` failed.
     :raises ValueError: If no password was given.
     """
+
+    # Enforce input order via order of variable declaration.
+    paths = _get_inputs(InputPrompt.PATHS)
+    passwords = _get_inputs(InputPrompt.PASSWORDS)
 
     if not passwords:
         raise ValueError(ErrorMessage.NO_VALID_PASSWORD)
@@ -199,8 +202,4 @@ grouped_pdf_file_paths: dict[FileState, list[str]] = {
     ]
 }
 
-# Enforce input order via parameter order
-unlock_pdf(
-    paths = _get_inputs(InputPrompt.PATHS),
-    passwords = _get_inputs(InputPrompt.PASSWORDS)
-)
+unlock_pdf()
