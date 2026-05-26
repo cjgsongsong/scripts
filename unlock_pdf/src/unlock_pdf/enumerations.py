@@ -1,6 +1,6 @@
 """`unlock-pdf` enumerations."""
 
-from classes import MessageEnum
+from unlock_pdf.classes import MessageEnum
 from enum import StrEnum
 
 class ErrorMessage(MessageEnum):

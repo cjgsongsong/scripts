@@ -1,6 +1,6 @@
 """`unlock-pdf` functions."""
 
-from enumerations import (
+from unlock_pdf.enumerations import (
     ErrorMessage,
     FileState,
     InputPrompt,
