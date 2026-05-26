@@ -52,3 +52,23 @@ Once Python is successfully installed, the following are also needed.
     ```bash
     poetry config virtualenvs.in-project true --local
     ```
+
+## Installation
+
+1. Clone the repository containing the script.
+
+   ```bash
+   git clone https://github.com/cjgsongsong/scripts.git
+   ```
+
+2. Navigate to the script's package.
+
+   ```bash
+   cd unlock_pdf
+   ```
+
+3. Install the script's dependencies.
+
+   ```bash
+   poetry install
+   ```
