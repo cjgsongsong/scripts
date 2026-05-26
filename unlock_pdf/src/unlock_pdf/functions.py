@@ -216,8 +216,10 @@ def unlock_pdf() -> None:
             file_state for file_state in FileState
         ]
     }
-    passwords = _get_passwords()
+
+    # Enforce input order via order of variable declaration.
     pdf_file_paths = _get_pdf_file_paths()
+    passwords = _get_passwords()
 
     for pdf_file_path in pdf_file_paths:
         _unlock_pdf_file(
