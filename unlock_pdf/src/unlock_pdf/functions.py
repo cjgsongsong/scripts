@@ -14,9 +14,15 @@ from pikepdf import (
     Pdf,
     PdfError,
 )
-from typing import Literal
+from unlock_pdf.types import (
+    GroupedPaths,
+    InputMainPrompt,
+    Inputs,
+    Passwords,
+    Paths
+)
 
-def _get_inputs(prompt: Literal[InputPrompt.PASSWORDS, InputPrompt.PATHS]) -> set[str]:
+def _get_inputs(prompt: InputMainPrompt) -> Inputs:
     """
     Get inputs until an empty string is given.
     
@@ -29,7 +35,7 @@ def _get_inputs(prompt: Literal[InputPrompt.PASSWORDS, InputPrompt.PATHS]) -> se
     print(InputPrompt.MARKER)
 
     user_input = input()
-    user_inputs: set[str] = set()
+    user_inputs: Inputs = set()
 
     while user_input != "":
         user_inputs.add(user_input)
@@ -38,7 +44,7 @@ def _get_inputs(prompt: Literal[InputPrompt.PASSWORDS, InputPrompt.PATHS]) -> se
 
     return user_inputs
 
-def _get_passwords() -> set[str]:
+def _get_passwords() -> Passwords:
     """
     Get from inputs the passwords to attempt unlocking the PDF files with.
 
@@ -53,7 +59,7 @@ def _get_passwords() -> set[str]:
 
     return passwords
 
-def _get_pdf_file_paths() -> set[str]:
+def _get_pdf_file_paths() -> Paths:
     """
     Get the paths of the PDF files from inputted paths to
     - directories containing the PDF files, and/or
@@ -64,7 +70,7 @@ def _get_pdf_file_paths() -> set[str]:
     """
 
     paths = _get_inputs(InputPrompt.PATHS)
-    pdf_file_paths: set[str] = set()
+    pdf_file_paths: Paths = set()
 
     for path in paths:
         pdf_file_paths.update(
@@ -78,7 +84,7 @@ def _get_pdf_file_paths() -> set[str]:
 
     return pdf_file_paths
 
-def _get_pdf_file_subpaths(path: str) -> set[str]:
+def _get_pdf_file_subpaths(path: str) -> Paths:
     """
     Get the path(s) of PDF file(s) in the given path.
 
@@ -113,7 +119,7 @@ def _is_pdf_file(file_path: str) -> bool:
         and isfile(file_path)
     )
 
-def _log_unlock_attempt(grouped_pdf_file_paths: dict[FileState, set[str]]) -> None:
+def _log_unlock_attempt(grouped_pdf_file_paths: GroupedPaths) -> None:
     """
     Log after the unlock attempt per file state
     - how many PDF files resulted to such state, and
@@ -154,8 +160,8 @@ def _sanitize_path(path: str) -> str:
 
 def _unlock_pdf_file(
         file_path: str,
-        grouped_pdf_file_paths: dict[FileState, set[str]],
-        passwords: set[str]
+        grouped_pdf_file_paths: GroupedPaths,
+        passwords: Passwords
     ) -> None:
     """
     Overwrite the PDF file as its unlocked version.
@@ -212,7 +218,7 @@ def unlock_pdf() -> None:
     :raises ValueError: If no password was given.
     """
 
-    grouped_pdf_file_paths: dict[FileState, set[str]] = {
+    grouped_pdf_file_paths: GroupedPaths = {
         key: set()
         for key in [
             file_state for file_state in FileState
