@@ -21,7 +21,7 @@ def _get_inputs(prompt: Literal[InputPrompt.PASSWORDS, InputPrompt.PATHS]) -> se
     Get inputs until an empty string is given.
     
     :param prompt: Prompt on what inputs are being asked of the user.
-    :returns: List of inputs
+    :returns: Set of inputs.
     """
 
     print(prompt)
@@ -78,23 +78,25 @@ def _get_pdf_file_paths() -> set[str]:
 
     return pdf_file_paths
 
-def _get_pdf_file_subpaths(path: str) -> list[str]:
+def _get_pdf_file_subpaths(path: str) -> set[str]:
     """
     Get the path(s) of PDF file(s) in the given path.
 
     :param path: Path of either the directory containing the PDF file(s) or the PDF file.
-    :returns: List of paths of PDF files.
+    :returns: Set of paths of PDF files.
     """
 
     if isdir(path):
-        return glob(
-            pathname = path + Path.PDF_FILE_SEARCH_PATTERN,
-            recursive = True
+        return set(
+            glob(
+                pathname = path + Path.PDF_FILE_SEARCH_PATTERN,
+                recursive = True
+            )
         )
     elif _is_pdf_file(path):
-        return [path]
+        return set(path)
 
-    return []
+    return set()
 
 def _is_pdf_file(file_path: str) -> bool:
     """
@@ -111,7 +113,7 @@ def _is_pdf_file(file_path: str) -> bool:
         and isfile(file_path)
     )
 
-def _log_unlock_attempt(grouped_pdf_file_paths: dict[FileState, list[str]]) -> None:
+def _log_unlock_attempt(grouped_pdf_file_paths: dict[FileState, set[str]]) -> None:
     """
     Log after the unlock attempt per file state
     - how many PDF files resulted to such state, and
@@ -152,7 +154,7 @@ def _sanitize_path(path: str) -> str:
 
 def _unlock_pdf_file(
         file_path: str,
-        grouped_pdf_file_paths: dict[FileState, list[str]],
+        grouped_pdf_file_paths: dict[FileState, set[str]],
         passwords: set[str]
     ) -> None:
     """
@@ -169,7 +171,7 @@ def _unlock_pdf_file(
 
         grouped_pdf_file_paths \
             [FileState.NOT_LOCKED] \
-            .append(file_path)
+            .add(file_path)
     except PasswordError:
         did_unlock = False
 
@@ -195,7 +197,7 @@ def _unlock_pdf_file(
 
         grouped_pdf_file_paths \
             [FileState.UNLOCKED if did_unlock else FileState.LOCKED] \
-            .append(file_path)
+            .add(file_path)
 
 def unlock_pdf() -> None:
     """
@@ -210,8 +212,8 @@ def unlock_pdf() -> None:
     :raises ValueError: If no password was given.
     """
 
-    grouped_pdf_file_paths: dict[FileState, list[str]] = {
-        key: []
+    grouped_pdf_file_paths: dict[FileState, set[str]] = {
+        key: set()
         for key in [
             file_state for file_state in FileState
         ]
