@@ -105,11 +105,11 @@ Supposing the user is at the repository's root directory, using the script is as
    poetry run python src/unlock_pdf/__main__.py
    ```
 
-3. Enter every directory path or file path of the PDF files to unlock.
+3. Enter every directory path and/or file path of the PDF files to unlock.
 
 4. Enter an empty string to quit entering paths.
 
-5. Enter every password to attempt unlocking the PDF files with.
+5. Enter every password to attempt unlocking each PDF file with.
 
 6. Enter an empty string to quit entering passwords.
 
@@ -122,14 +122,14 @@ Supposing the user is at the repository's root directory, using the script is as
 ```
 
 ```bash
-Enter every directory path or file path of the PDF file(s) to unlock.
+Enter every directory path and/or file path of the PDF files to unlock.
 Enter an empty string to quit.
 >
 "\1-locked-with-password-123.pdf"
 "\2-locked-with-password-123.pdf"
 "\3-not-locked.pdf"
 
-Enter every password to attempt unlocking the PDF file(s) with.
+Enter every password to attempt unlocking each PDF file with.
 Enter an empty string to quit.
 >
 123

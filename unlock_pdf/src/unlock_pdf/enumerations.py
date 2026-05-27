@@ -15,7 +15,7 @@ class ErrorMessage(MessageEnum):
         :returns: Error message for failed overwrite.
         """
 
-        return f"Unlocking `{file_path}` failed."
+        return f"Unlocking {file_path} failed."
 
     FAILED_OVERWRITE = _generate_failed_overwrite_error_message
     NO_VALID_PASSWORD = "At least one password must be given."
@@ -33,8 +33,8 @@ class InputPrompt(StrEnum):
 
     END = "Enter an empty string to quit."
     MARKER = ">"
-    PASSWORDS = "Enter every password to attempt unlocking the PDF file(s) with."
-    PATHS = "Enter every directory path or file path of the PDF file(s) to unlock."
+    PASSWORDS = "Enter every password to attempt unlocking each PDF file with."
+    PATHS = "Enter every directory path and/or file path of the PDF files to unlock."
 
 class LogMessage(MessageEnum):
     """Enumeration of log messages."""
