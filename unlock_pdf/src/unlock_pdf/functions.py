@@ -1,18 +1,18 @@
 """`unlock-pdf` functions."""
 
-from unlock_pdf.enumerations import (
-    ErrorMessage,
-    FileState,
-    InputPrompt,
-    LogMessage,
-    Path
-)
 from glob import glob
 from os.path import isdir, isfile
 from pikepdf import (
     PasswordError,
     Pdf,
     PdfError,
+)
+from unlock_pdf.enumerations import (
+    ErrorMessage,
+    FileState,
+    InputPrompt,
+    LogMessage,
+    Path
 )
 from unlock_pdf.types import (
     GroupedPaths,
@@ -26,7 +26,7 @@ def _get_inputs(prompt: InputMainPrompt) -> Inputs:
     """
     Get inputs until an empty string is given.
     
-    :param prompt: Prompt on what inputs are being asked of the user.
+    :param prompt: Prompt detailing what inputs are being asked of the user.
     :returns: Set of inputs.
     """
 
@@ -34,9 +34,9 @@ def _get_inputs(prompt: InputMainPrompt) -> Inputs:
     print(InputPrompt.END)
     print(InputPrompt.MARKER)
 
-    user_input = input()
     user_inputs: Inputs = set()
 
+    user_input = input()
     while user_input != "":
         user_inputs.add(user_input)
 
@@ -46,10 +46,10 @@ def _get_inputs(prompt: InputMainPrompt) -> Inputs:
 
 def _get_passwords() -> Passwords:
     """
-    Get from inputs the passwords to attempt unlocking the PDF files with.
+    Get the passwords to attempt unlocking each PDF file with.
 
     :raises ValueError: If no password was given.
-    :returns: Set of passwords to attempt unlocking PDF files with.
+    :returns: Set of passwords to attempt unlocking each PDF file with.
     """
 
     passwords = _get_inputs(InputPrompt.PASSWORDS)
@@ -61,12 +61,12 @@ def _get_passwords() -> Passwords:
 
 def _get_pdf_file_paths() -> Paths:
     """
-    Get the paths of the PDF files from inputted paths to
-    - directories containing the PDF files, and/or
-    - PDF files themselves.
+    Get the paths of all PDF files to unlock from every inputted
+    - directory path where some PDF files are, and/or
+    - file path of a PDF file.
 
-    :raises FileNotFoundError: If every given path and their subpaths do not point to any PDF file.
-    :returns: Set of determined paths to each PDF file.
+    :raises FileNotFoundError: If every path does not ultimately point to a PDF file.
+    :returns: Set of paths of all PDF files to unlock.
     """
 
     paths = _get_inputs(InputPrompt.PATHS)
@@ -86,10 +86,12 @@ def _get_pdf_file_paths() -> Paths:
 
 def _get_pdf_file_subpaths(path: str) -> Paths:
     """
-    Get the path(s) of PDF file(s) in the given path.
+    Get the paths of some PDF files to unlock from either
+    - a directory path where some PDF files are, or
+    - a file path of a PDF file.
 
-    :param path: Path of either the directory containing the PDF file(s) or the PDF file.
-    :returns: Set of paths of PDF files.
+    :param path: Directory path or file path of some PDF files to unlock.
+    :returns: Set of paths of some PDF files to unlock.
     """
 
     if isdir(path):
@@ -106,12 +108,12 @@ def _get_pdf_file_subpaths(path: str) -> Paths:
 
 def _is_pdf_file(file_path: str) -> bool:
     """
-    Validate if the file path
+    Validate if a file path
     - has the PDF file extension, and
     - points to a file.
 
-    :param file_path: Path of the PDF file.
-    :returns: Whether the file path points to a PDF file or not.
+    :param file_path: Path of a PDF file.
+    :returns: Whether the file path directly points to a PDF file or not.
     """
 
     return (
@@ -121,11 +123,11 @@ def _is_pdf_file(file_path: str) -> bool:
 
 def _log_unlock_attempt(grouped_pdf_file_paths: GroupedPaths) -> None:
     """
-    Log after the unlock attempt per file state
-    - how many PDF files resulted to such state, and
-    - what are the paths to said PDF files.
+    Log for every file state
+    - how many PDF files are in such file state, and
+    - what are the file paths of those PDF files.
 
-    :param grouped_pdf_file_paths: Dictionary that maps file states with PDF file paths.
+    :param grouped_pdf_file_paths: Dictionary that maps file states with file paths of PDF files.
     """
 
     for file_state, pdf_file_paths in grouped_pdf_file_paths.items():
@@ -148,10 +150,10 @@ def _log_unlock_attempt(grouped_pdf_file_paths: GroupedPaths) -> None:
 
 def _sanitize_path(path: str) -> str:
     """
-    Remove quotation marks from the pasted path.
+    Remove quotation marks from a pasted path.
 
-    :param path: Path of either the directory containing the PDF file(s) or the PDF file.
-    :returns: Sanitized path.
+    :param path: Directory path or file path of some PDF files to unlock.
+    :returns: Sanitized aforementioned path.
     """
 
     return path \
@@ -164,10 +166,10 @@ def _unlock_pdf_file(
         passwords: Passwords
     ) -> None:
     """
-    Overwrite the PDF file as its unlocked version.
+    Overwrite a PDF file as its unlocked version.
 
-    :param file_path: Sanitized path of the PDF file.
-    :param grouped_pdf_file_paths: Dictionary that maps file states with PDF file paths.
+    :param file_path: Sanitized file path of the PDF file to unlock.
+    :param grouped_pdf_file_paths: Dictionary that maps file states with file paths of PDF files.
     :param passwords: Passwords to attempt unlocking the PDF file with.
     :raises PdfError: If unlocking the PDF file via `pikepdf` failed.
     """
@@ -207,16 +209,19 @@ def _unlock_pdf_file(
 
 def unlock_pdf() -> None:
     """
-    Unlock password-protected PDF files after inputting
-    - paths to
-      - directories containing the PDF files, and/or
-      - PDF files themselves, and
-    - passwords to attempt unlocking the PDF files with.
+    Unlock password-protected PDF files for every inputted
+    - directory path where some PDF files are, and/or
+    - file path of a PDF file
+    using inputted passwords to attempt unlocking each PDF file with.
 
-    :raises FileNotFoundError: If every given path and their subpaths do not point to any PDF file.
+    :raises FileNotFoundError: If every path does not ultimately point to a PDF file.
     :raises PdfError: If unlocking a PDF file via `_unlock_pdf` failed.
     :raises ValueError: If no password was given.
     """
+
+    # Enforce input order via order of variable declaration.
+    pdf_file_paths = _get_pdf_file_paths()
+    passwords = _get_passwords()
 
     grouped_pdf_file_paths: GroupedPaths = {
         key: set()
@@ -224,10 +229,6 @@ def unlock_pdf() -> None:
             file_state for file_state in FileState
         ]
     }
-
-    # Enforce input order via order of variable declaration.
-    pdf_file_paths = _get_pdf_file_paths()
-    passwords = _get_passwords()
 
     for pdf_file_path in pdf_file_paths:
         _unlock_pdf_file(
