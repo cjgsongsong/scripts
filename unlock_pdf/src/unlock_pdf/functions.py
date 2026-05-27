@@ -5,7 +5,7 @@ from os.path import isdir, isfile
 from pikepdf import (
     PasswordError,
     Pdf,
-    PdfError,
+    PdfError
 )
 from unlock_pdf.enumerations import (
     ErrorMessage,
@@ -189,7 +189,7 @@ def _unlock_pdf_file(
                     .open(
                         allow_overwriting_input = True,
                         filename_or_stream = file_path,
-                        password = password,
+                        password = password
                     ) \
                     .save(file_path)
 
