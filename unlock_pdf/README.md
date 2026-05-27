@@ -72,3 +72,35 @@ Once Python is successfully installed, the following are also needed.
    ```bash
    poetry install
    ```
+
+## Usage
+
+Supposing the user is at the repository's root directory, using the script is as follows.
+
+1. Navigate to the script's package.
+
+   ```bash
+   cd unlock_pdf
+   ```
+
+2. Run using Poetry either the script's package
+
+   ```bash
+   poetry run unlock-pdf
+   ```
+
+   or the script's main file.
+
+   ```bash
+   poetry run python src/unlock_pdf/__main__.py
+   ```
+
+3. Enter every directory path or file path of the PDF files to unlock.
+
+4. Enter an empty string to quit entering paths.
+
+5. Enter every password to attempt unlocking the PDF files with.
+
+6. Enter an empty string to quit entering passwords.
+
+7. Verify the results of the unlock attempt.
