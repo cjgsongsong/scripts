@@ -16,3 +16,8 @@ unlock-pdf = "src.unlock_pdf.__main__:unlock_pdf"
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.0.3,<10.0.0)"
+]
