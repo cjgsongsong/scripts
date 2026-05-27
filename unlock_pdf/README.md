@@ -4,6 +4,16 @@ This script is for unlocking password-protected PDF files.
 
 For other scripts, see the [main `README`](../README.md).
 
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+  - [Main Prerequisites](#main-prerequisites)
+  - [Python-related Prerequisites](#python-related-prerequisites)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Example](#example)
+- [Changelog](#changelog)
+
 ## Prerequisites
 
 ### Main Prerequisites
