@@ -104,3 +104,38 @@ Supposing the user is at the repository's root directory, using the script is as
 6. Enter an empty string to quit entering passwords.
 
 7. Verify the results of the unlock attempt.
+
+## Example
+
+```bash
+\scripts\unlock_pdf> poetry run unlock-pdf
+```
+
+```bash
+Enter every directory path or file path of the PDF file(s) to unlock.
+Enter an empty string to quit.
+>
+"\1-locked-with-password-123.pdf"
+"\2-locked-with-password-123.pdf"
+"\3-not-locked.pdf"
+
+Enter every password to attempt unlocking the PDF file(s) with.
+Enter an empty string to quit.
+>
+123
+
+0 PDF files are still locked:
+-
+
+1 PDF file is not locked:
+\3-not-locked.pdf
+
+2 PDF files are unlocked:
+\1-locked-with-password-123.pdf
+\2-locked-with-password-123.pdf
+
+```
+
+```bash
+\scripts\unlock_pdf> _
+```
