@@ -1,7 +1,7 @@
 """`unlock-pdf` enumerations."""
 
-from unlock_pdf.classes import MessageEnum
 from enum import StrEnum
+from unlock_pdf.classes import MessageEnum
 
 class ErrorMessage(MessageEnum):
     """Enumeration of error messages."""
@@ -9,9 +9,9 @@ class ErrorMessage(MessageEnum):
     @classmethod
     def _generate_failed_overwrite_error_message(cls, file_path: str) -> str:
         """
-        Generate an error message for failed overwrite based on the path of the PDF file.
+        Generate an error message for failed overwrite based on the path of a PDF file.
         
-        :param file_path: Path of the PDF file.
+        :param file_path: Path of a PDF file.
         :returns: Error message for failed overwrite.
         """
 
@@ -22,7 +22,7 @@ class ErrorMessage(MessageEnum):
     NO_VALID_PATH = "At least one path must ultimately point to a PDF file."
 
 class FileState(StrEnum):
-    """Enumeration of states a PDF file may be after an unlock attempt."""
+    """Enumeration of states that a PDF file may be after an unlock attempt."""
 
     LOCKED = "still locked"
     NOT_LOCKED = "not locked"
@@ -47,18 +47,18 @@ class LogMessage(MessageEnum):
     ) -> str:
         """
         Generate a log message based on
-        - the file state, and
-        - the number of PDF files counted to be of said file state.
+        - a file state, and
+        - the number of PDF files that are in said file state.
 
-        :param file_state: State of the PDF file(s) after an unlock attempt.
-        :param file_state_count: Number of PDF files counted to be of said file state.
-        :returns: Log message for the file state's count.
+        :param file_state: State of a PDF file after an unlock attempt.
+        :param file_state_count: Number of PDF files that are in said file state.
+        :returns: Log message detailing the number of PDF files that are in said file state.
         """
 
         be_verb = "is" if file_state_count == 1 else "are"
         plural_suffix = "" if file_state_count == 1 else "s"
 
-        return f"{file_state_count} PDF file{plural_suffix} {be_verb} {file_state.value}:"
+        return f"{file_state_count} PDF file{plural_suffix} {be_verb} {file_state}:"
 
     FILE_STATE_COUNT = _generate_file_state_count_log_message
     NO_PDF_FILE_PATH = "-"
@@ -73,4 +73,4 @@ class Path(StrEnum):
 class Python(StrEnum):
     """Enumeration of Python constants."""
 
-    DIRECT_EXECUTION_TOP_LEVEL_CODE = "__main__"
+    DIRECT_EXECUTION_MODULE = "__main__"
