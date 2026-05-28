@@ -3,7 +3,7 @@
 from typing import Literal
 from unlock_pdf.enumerations import FileState, InputPrompt
 
-type InputMainPrompt = Literal[InputPrompt.PASSWORDS, InputPrompt.PATHS]
+type MainInputPrompt = Literal[InputPrompt.PASSWORDS, InputPrompt.PATHS]
 """Prompt detailing what inputs are being asked of the user."""
 type Passwords = set[str]
 """Set of passwords."""

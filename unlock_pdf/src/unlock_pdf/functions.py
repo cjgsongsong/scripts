@@ -16,13 +16,13 @@ from unlock_pdf.enumerations import (
 )
 from unlock_pdf.types import (
     GroupedPaths,
-    InputMainPrompt,
+    MainInputPrompt,
     Inputs,
     Passwords,
     Paths
 )
 
-def _get_inputs(prompt: InputMainPrompt) -> Inputs:
+def _get_inputs(prompt: MainInputPrompt) -> Inputs:
     """
     Get inputs until an empty string is given.
     
