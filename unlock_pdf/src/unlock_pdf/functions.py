@@ -7,6 +7,7 @@ from pikepdf import (
     Pdf,
     PdfError
 )
+from typeguard import typechecked
 from unlock_pdf.enumerations import (
     ErrorMessage,
     FileState,
@@ -22,6 +23,7 @@ from unlock_pdf.types import (
     Paths
 )
 
+@typechecked
 def _get_inputs(prompt: MainInputPrompt) -> Inputs:
     """
     Get inputs until an empty string is given.
@@ -44,6 +46,7 @@ def _get_inputs(prompt: MainInputPrompt) -> Inputs:
 
     return user_inputs
 
+@typechecked
 def _get_passwords() -> Passwords:
     """
     Get the passwords to attempt unlocking each PDF file with.
@@ -59,6 +62,7 @@ def _get_passwords() -> Passwords:
 
     return passwords
 
+@typechecked
 def _get_pdf_file_paths() -> Paths:
     """
     Get the paths of all PDF files to unlock from every inputted
@@ -84,6 +88,7 @@ def _get_pdf_file_paths() -> Paths:
 
     return pdf_file_paths
 
+@typechecked
 def _get_pdf_file_subpaths(path: str) -> Paths:
     """
     Get the paths of some PDF files to unlock from either
@@ -106,6 +111,7 @@ def _get_pdf_file_subpaths(path: str) -> Paths:
 
     return set()
 
+@typechecked
 def _is_pdf_file(file_path: str) -> bool:
     """
     Validate if a file path
@@ -121,6 +127,7 @@ def _is_pdf_file(file_path: str) -> bool:
         and isfile(file_path)
     )
 
+@typechecked
 def _log_unlock_attempt(grouped_pdf_file_paths: GroupedPaths) -> None:
     """
     Log for every file state
@@ -148,6 +155,7 @@ def _log_unlock_attempt(grouped_pdf_file_paths: GroupedPaths) -> None:
 
         print()
 
+@typechecked
 def _sanitize_path(path: str) -> str:
     """
     Remove quotation marks from a pasted path.
@@ -160,6 +168,7 @@ def _sanitize_path(path: str) -> str:
         .removeprefix(Path.QUOTATION_MARK) \
         .removesuffix(Path.QUOTATION_MARK)
 
+@typechecked
 def _unlock_pdf_file(
         file_path: str,
         grouped_pdf_file_paths: GroupedPaths,
@@ -207,6 +216,7 @@ def _unlock_pdf_file(
             [FileState.UNLOCKED if did_unlock else FileState.LOCKED] \
             .add(file_path)
 
+@typechecked
 def unlock_pdf() -> None:
     """
     Unlock password-protected PDF files for every inputted
