@@ -1,23 +1,32 @@
 """`unlock-pdf` enumerations."""
 
 from enum import StrEnum
+from typeguard import typechecked
 from unlock_pdf.classes import MessageEnum
 
 class ErrorMessage(MessageEnum):
     """Enumeration of error messages."""
 
     @classmethod
+    @typechecked
     def _generate_failed_overwrite_error_message(cls, file_path: str) -> str:
         """
         Generate an error message for failed overwrite based on the path of a PDF file.
         
         :param file_path: Path of a PDF file.
+        :raises TypeCheckError: If any argument has an invalid type.
+        :raises ValueError: If the file path is an empty string.
         :returns: Error message for failed overwrite.
         """
 
+        if not file_path:
+            raise ValueError(cls.EMPTY_FILE_PATH)
+
         return f"Unlocking {file_path} failed."
 
+    EMPTY_FILE_PATH = "File path must be a non-empty string."
     FAILED_OVERWRITE = _generate_failed_overwrite_error_message
+    NEGATIVE_FILE_STATE_COUNT = "File state count must be a non-negative integer."
     NO_VALID_PASSWORD = "At least one password must be given."
     NO_VALID_PATH = "At least one path must ultimately point to a PDF file."
 
@@ -40,6 +49,7 @@ class LogMessage(MessageEnum):
     """Enumeration of log messages."""
 
     @classmethod
+    @typechecked
     def _generate_file_state_count_log_message(
         cls,
         file_state: FileState,
@@ -52,8 +62,13 @@ class LogMessage(MessageEnum):
 
         :param file_state: State of a PDF file after an unlock attempt.
         :param file_state_count: Number of PDF files that are in said file state.
+        :raises TypeCheckError: If any argument has an invalid type.
+        :raises ValueError: If the file state count is a negative integer.
         :returns: Log message detailing the number of PDF files that are in said file state.
         """
+
+        if file_state_count < 0:
+            raise ValueError(ErrorMessage.NEGATIVE_FILE_STATE_COUNT)
 
         be_verb = "is" if file_state_count == 1 else "are"
         plural_suffix = "" if file_state_count == 1 else "s"
