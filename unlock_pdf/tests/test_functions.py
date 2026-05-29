@@ -10,7 +10,7 @@ from pytest import (
 )
 from typeguard import TypeCheckError
 from unlock_pdf.enumerations import InputPrompt
-from unlock_pdf.functions import _get_unique_inputs
+from unlock_pdf.functions import _get_unique_inputs, _sanitize_path
 from unlock_pdf.types import MainInputPrompt
 
 class TestGetUniqueInputs:
@@ -136,3 +136,30 @@ class TestGetUniqueInputs:
         monkeypatch.setattr(self.TARGET_INPUT_FUNCTION, _mock_input)
 
         assert _get_unique_inputs(InputPrompt.PASSWORDS) == unique_inputs
+
+class TestSanitizePath:
+    """Tests for `_sanitize_path`."""
+
+    @mark.parametrize(
+        "path," \
+        "sanitized_path",
+        [
+            ('"test.pdf"', "test.pdf"),
+            ("test.pdf", "test.pdf")
+        ]
+    )
+    def test_sanitize_path_returns_with_valid_path(
+        self,
+        path: str,
+        sanitized_path: str
+    ) -> None:
+        """
+        Assert that `_sanitize_path`
+        returns the sanitized given path
+        when given a valid path.
+
+        :param path: Directory path or file path of some PDF files to unlock.
+        :param sanitized_path: Sanitized aforementioned path.
+        """
+
+        assert _sanitize_path(path) == sanitized_path
