@@ -121,7 +121,7 @@ def _is_pdf_file(file_path: str) -> bool:
     - has the PDF file extension, and
     - points to a file.
 
-    :param file_path: Path of a PDF file.
+    :param file_path: Path of a file.
     :returns: Whether the file path directly points to a PDF file or not.
     """
 
