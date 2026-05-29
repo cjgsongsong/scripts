@@ -9,6 +9,7 @@ from pytest import (
 )
 from unlock_pdf.enumerations import InputPrompt
 from unlock_pdf.functions import (
+    _get_pdf_file_subpaths,
     _get_unique_inputs,
     _is_pdf_file,
     _sanitize_path
@@ -22,6 +23,125 @@ from unlock_pdf.types import MainInputPrompt
 #
 # See https://pytest.org/en/7.4.x/reference/reference.html#pytest.MonkeyPatch.setattr.
 import unlock_pdf.functions as target
+
+class TestGetPDFFileSubpaths:
+    """Tests for `_get_pdf_file_subpaths`."""
+
+    NO_PDF_FILE_SUBPATH: list[str] = list()
+
+    @mark.parametrize(
+        "path," \
+        "glob_paths, is_directory, is_pdf_file," \
+        "pdf_file_subpaths",
+        [
+            (
+                "test-directory/",
+                ["test-directory/test-0.pdf", "test-directory/test-1.pdf"],
+                True,
+                False,
+                ["test-directory/test-0.pdf", "test-directory/test-1.pdf"]
+            ),
+            (
+                "test.pdf",
+                [],
+                False,
+                True,
+                ["test.pdf"]
+            ),
+            (
+                "",
+                [],
+                False,
+                False,
+                NO_PDF_FILE_SUBPATH
+            )
+        ]
+    )
+    def test_get_pdf_file_subpaths_returns_with_valid_path(
+        self,
+        glob_paths: list[str],
+        is_directory: bool,
+        is_pdf_file: bool,
+        monkeypatch: MonkeyPatch,
+        path: str,
+        pdf_file_subpaths: list[str]
+    ) -> None:
+        """
+        Asserts that `_get_pdf_file_subpaths`
+        returns the set of paths of some PDF files to unlock
+        when given a valid path.
+        
+        :param file_path_pattern: File path pattern to match.
+        :param glob_paths: Mock return value of `glob.glob`.
+        :param is_directory: Mock return value of `os.path.isdir`.
+        :param is_pdf_file: Mock return value of `unlock-pdf.functions._is_pdf_file`. 
+        :param monkeypatch: `pytest` fixture for mocking functions.
+        :param path: Directory path or file path of some PDF files to unlock.
+        :param pdf_file_subpaths: Ordered list of unique paths of some PDF files to unlock.
+        """
+
+        def _mock_glob(pathname: str, recursive: bool) -> list[str]:
+            """
+            Mock function of `glob.glob` that
+            returns a list of paths that match the given file path pattern.
+            
+            :param pathname: File path pattern.
+            :param recursive: Whether to recursively look for matches in directories or not.
+            :returns List of paths that match the given file path pattern.
+            """
+
+            assert pathname == path + "/**/*.pdf"
+            assert recursive is True
+
+            return glob_paths
+
+        def _mock_isdir(pathname: str) -> bool:
+            """
+            Mock function of `os.path.isdir` that
+            returns a mock boolean that
+            tells whether the path directly points to a directory or not.
+
+            :param pathname: Path.
+            :returns: Mock boolean that
+                      tells whether the path directly points to a directory or not.
+            """
+
+            assert pathname == path
+
+            return is_directory
+
+        def _mock_is_pdf_file(pathname: str) -> bool:
+            """
+            Mock function of `unlock-pdf.functions._is_pdf_file` that
+            returns a mock boolean that
+            tells whether the file path directly points to a PDF file or not.
+
+            :param pathname: Path.
+            :returns: Mock boolean that
+                      tells whether the file path directly points to a PDF file or not.
+            """
+
+            assert pathname == path
+
+            return is_pdf_file
+
+        monkeypatch.setattr(
+            name = "_is_pdf_file",
+            target = target,
+            value = _mock_is_pdf_file
+        )
+        monkeypatch.setattr(
+            name = "glob",
+            target = target,
+            value = _mock_glob
+        )
+        monkeypatch.setattr(
+            name = "isdir",
+            target = target,
+            value = _mock_isdir
+        )
+
+        assert _get_pdf_file_subpaths(path) == pdf_file_subpaths
 
 class TestGetUniqueInputs:
     """Tests for `_get_unique_inputs`."""
