@@ -235,6 +235,7 @@ def unlock_pdf() -> None:
     :raises ValueError: If no password was given.
     """
 
+    # <NOTE>
     # Enforce input order via order of variable declaration.
     pdf_file_paths = _get_pdf_file_paths()
     passwords = _get_passwords()
