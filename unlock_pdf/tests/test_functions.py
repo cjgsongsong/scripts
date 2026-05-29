@@ -5,13 +5,23 @@
 from pytest import (
     CaptureFixture,
     MonkeyPatch,
-    mark,
-    raises
+    mark
 )
-from typeguard import TypeCheckError
 from unlock_pdf.enumerations import InputPrompt
-from unlock_pdf.functions import _get_unique_inputs, _sanitize_path
+from unlock_pdf.functions import (
+    _get_unique_inputs,
+    _is_pdf_file,
+    _sanitize_path
+)
 from unlock_pdf.types import MainInputPrompt
+
+# <NOTE>
+# As the source code prefers named imports over default imports,
+# those named imports must be mocked by having the target be where they are named
+# instead of where they actually came from.
+#
+# See https://pytest.org/en/7.4.x/reference/reference.html#pytest.MonkeyPatch.setattr.
+import unlock_pdf.functions as target
 
 class TestGetUniqueInputs:
     """Tests for `_get_unique_inputs`."""
@@ -136,6 +146,74 @@ class TestGetUniqueInputs:
         monkeypatch.setattr(self.TARGET_INPUT_FUNCTION, _mock_input)
 
         assert _get_unique_inputs(InputPrompt.PASSWORDS) == unique_inputs
+
+class TestIsPDFFile:
+    """Tests for `_is_pdf_file`."""
+
+    @mark.parametrize(
+        "file_path, is_file," \
+        "flag_value",
+        [
+            (
+                "corrupted-test.pdf",
+                False,
+                False
+            ),
+            (
+                "test.pdf",
+                True,
+                True
+            ),
+            (
+                "test.txt",
+                False,
+                False
+            ),
+            (
+                "test.txt",
+                True,
+                False
+            )
+        ]
+    )
+    def test_is_pdf_file_returns_with_valid_file_path(
+        self,
+        file_path: str,
+        flag_value: bool,
+        is_file: bool,
+        monkeypatch: MonkeyPatch
+    ) -> None:
+        """
+        Assert that `_is_pdf_file`
+        returns whether the file path directly points to a PDF file or not
+        when given a valid file path.
+        
+        :param file_path: Path of a file.
+        :param flag_value: Whether the file path directly points to a PDF file or not.
+        :param is_file: Mock return value of `os.path.isfile`.
+        :param monkeypatch: `pytest` fixture for mocking functions.
+        """
+
+        def _mock_isfile(path: str) -> bool:
+            """
+            Mock function of `os.path.isfile` that
+            returns a mock boolean that tells whether the path directly points to a file or not.
+            
+            :param path: Path.
+            :returns: Mock boolean that tells whether the path directly points to a file or not.
+            """
+
+            assert path == file_path
+
+            return is_file
+
+        monkeypatch.setattr(
+            name = "isfile",
+            target = target,
+            value = _mock_isfile
+        )
+
+        assert _is_pdf_file(file_path) == flag_value
 
 class TestSanitizePath:
     """Tests for `_sanitize_path`."""
