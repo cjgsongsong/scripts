@@ -24,29 +24,6 @@ from unlock_pdf.types import (
 )
 
 @typechecked
-def _get_inputs(prompt: MainInputPrompt) -> Inputs:
-    """
-    Get inputs until an empty string is given.
-    
-    :param prompt: Prompt detailing what inputs are being asked of the user.
-    :returns: Set of inputs.
-    """
-
-    print(prompt)
-    print(InputPrompt.END)
-    print(InputPrompt.MARKER)
-
-    user_inputs: Inputs = set()
-
-    user_input = input()
-    while user_input != "":
-        user_inputs.add(user_input)
-
-        user_input = input()
-
-    return user_inputs
-
-@typechecked
 def _get_passwords() -> Passwords:
     """
     Get the passwords to attempt unlocking each PDF file with.
@@ -55,7 +32,7 @@ def _get_passwords() -> Passwords:
     :returns: Set of passwords to attempt unlocking each PDF file with.
     """
 
-    passwords = _get_inputs(InputPrompt.PASSWORDS)
+    passwords = _get_unique_inputs(InputPrompt.PASSWORDS)
 
     if not passwords:
         raise ValueError(ErrorMessage.NO_VALID_PASSWORD)
@@ -73,7 +50,7 @@ def _get_pdf_file_paths() -> Paths:
     :returns: Set of paths of all PDF files to unlock.
     """
 
-    paths = _get_inputs(InputPrompt.PATHS)
+    paths = _get_unique_inputs(InputPrompt.PATHS)
     pdf_file_paths: Paths = set()
 
     for path in paths:
@@ -110,6 +87,29 @@ def _get_pdf_file_subpaths(path: str) -> Paths:
         return set(path)
 
     return set()
+
+@typechecked
+def _get_unique_inputs(prompt: MainInputPrompt) -> Inputs:
+    """
+    Get unique inputs until an empty string is given.
+    
+    :param prompt: Prompt detailing what inputs are being asked of the user.
+    :returns: Set of unique inputs.
+    """
+
+    print(prompt)
+    print(InputPrompt.END)
+    print(InputPrompt.MARKER)
+
+    user_inputs: Inputs = set()
+
+    user_input = input()
+    while user_input != "":
+        user_inputs.add(user_input)
+
+        user_input = input()
+
+    return user_inputs
 
 @typechecked
 def _is_pdf_file(file_path: str) -> bool:
