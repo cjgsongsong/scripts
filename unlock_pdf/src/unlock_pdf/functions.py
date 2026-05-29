@@ -43,6 +43,7 @@ def _get_passwords() -> Passwords:
 def _get_pdf_file_paths() -> Paths:
     """
     Get the paths of all PDF files to unlock from every inputted
+
     - directory path where some PDF files are, and/or
     - file path of a PDF file.
 
@@ -69,6 +70,7 @@ def _get_pdf_file_paths() -> Paths:
 def _get_pdf_file_subpaths(path: str) -> Paths:
     """
     Get the paths of some PDF files to unlock from either
+
     - a directory path where some PDF files are, or
     - a file path of a PDF file.
 
@@ -115,6 +117,7 @@ def _get_unique_inputs(prompt: MainInputPrompt) -> Inputs:
 def _is_pdf_file(file_path: str) -> bool:
     """
     Validate if a file path
+
     - has the PDF file extension, and
     - points to a file.
 
@@ -131,6 +134,7 @@ def _is_pdf_file(file_path: str) -> bool:
 def _log_unlock_attempt(grouped_pdf_file_paths: GroupedPaths) -> None:
     """
     Log for every file state
+
     - how many PDF files are in such file state, and
     - what are the file paths of those PDF files.
 
@@ -220,8 +224,10 @@ def _unlock_pdf_file(
 def unlock_pdf() -> None:
     """
     Unlock password-protected PDF files for every inputted
+
     - directory path where some PDF files are, and/or
     - file path of a PDF file
+
     using inputted passwords to attempt unlocking each PDF file with.
 
     :raises FileNotFoundError: If every path does not ultimately point to a PDF file.

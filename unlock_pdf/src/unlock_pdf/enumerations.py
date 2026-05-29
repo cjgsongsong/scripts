@@ -57,6 +57,7 @@ class LogMessage(MessageEnum):
     ) -> str:
         """
         Generate a log message based on
+
         - a file state, and
         - the number of PDF files that are in said file state.
 
