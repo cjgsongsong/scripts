@@ -5,10 +5,12 @@
 from pytest import (
     CaptureFixture,
     MonkeyPatch,
-    mark
+    mark,
+    raises
 )
 from unlock_pdf.enumerations import InputPrompt
 from unlock_pdf.functions import (
+    _get_pdf_file_paths,
     _get_pdf_file_subpaths,
     _get_unique_inputs,
     _is_pdf_file,
@@ -23,6 +25,130 @@ from unlock_pdf.types import MainInputPrompt
 #
 # See https://pytest.org/en/7.4.x/reference/reference.html#pytest.MonkeyPatch.setattr.
 import unlock_pdf.functions as target
+
+class TestGetPDFFilePaths:
+    """Tests for `_get_pdf_file_paths`."""
+
+    NO_PATH: list[str] = []
+
+    def test_get_pdf_file_paths_errs_with_no_path(self, monkeypatch: MonkeyPatch) -> None:
+        """
+        Assert that `_get_pdf_file_paths`
+        raises an appropriate exception
+        when given no path.
+
+        :param monkeypatch: `pytest` fixture for mocking functions.
+        """
+
+        def _mock_get_unique_inputs(prompt: str) -> list[str]:
+            """
+            Mock function of `unlock-pdf.functions._get_unique_inputs` that
+            returns a mock ordered list of unique paths of all PDF files to unlock.
+            
+            :param prompt: Prompt detailing what inputs are being asked of the user.
+            :returns Mock ordered list of unique paths of all PDF files to unlock.
+            """
+
+            assert \
+                prompt == "Enter every directory path and/or file path of the PDF files to unlock."
+
+            return self.NO_PATH
+
+        monkeypatch.setattr(
+            name = "_get_unique_inputs",
+            target = target,
+            value = _mock_get_unique_inputs
+        )
+
+        with raises(
+            expected_exception = FileNotFoundError,
+            match = "At least one path must ultimately point to a PDF file."
+        ):
+            _get_pdf_file_paths()
+
+    @mark.parametrize(
+        "paths, pdf_file_subpaths," \
+        "pdf_file_paths",
+        [
+            (
+                ["test.pdf"],
+                [["test.pdf"]],
+                ["test.pdf"]
+            ),
+            (
+                ["test-0.pdf", "test-directory/"],
+                [
+                    ["test-0.pdf"],
+                    ["test-directory/test-1.pdf"]
+                ],
+                ["test-0.pdf", "test-directory/test-1.pdf"]
+            )
+        ]
+    )
+    def test_get_pdf_file_paths_returns_with_valid_paths(
+        self,
+        monkeypatch: MonkeyPatch,
+        paths: list[str],
+        pdf_file_paths: list[str],
+        pdf_file_subpaths: list[list[str]],
+    ) -> None:
+        """
+        Assert that `_get_pdf_file_paths`
+        returns the set of paths of all PDF files to unlock
+        from inputted paths.
+
+        :param monkeypatch: `pytest` fixture for mocking functions.
+        :param paths: Mock return value of `_get_unique_inputs`.
+        :param pdf_file_paths: Ordered list of unique paths of all PDF files to unlock.
+        :param pdf_file_subpaths: List of mock return values of `_get_pdf_file_subpaths`.
+        """
+
+        call_count = -1
+
+        def _mock_get_pdf_file_subpaths(path: str) -> list[str]:
+            """
+            Mock function of `unlock-pdf.functions._get_pdf_file_subpaths` that
+            returns a mock ordered list of unique paths of some PDF files to unlock
+            based on how many times the function has been called.
+
+            :param path: Directory path or file path of some PDF files to unlock.
+            :returns Mock ordered list of unique paths of some PDF files to unlock.
+            """
+
+            nonlocal call_count
+
+            call_count += 1
+
+            assert path in paths
+
+            return pdf_file_subpaths[call_count]
+
+        def _mock_get_unique_inputs(prompt: str) -> list[str]:
+            """
+            Mock function of `unlock-pdf.functions._get_unique_inputs` that
+            returns a mock ordered list of unique paths of all PDF files to unlock.
+            
+            :param prompt: Prompt detailing what inputs are being asked of the user.
+            :returns Mock ordered list of unique paths of all PDF files to unlock.
+            """
+
+            assert \
+                prompt == "Enter every directory path and/or file path of the PDF files to unlock."
+
+            return paths
+
+        monkeypatch.setattr(
+            name = "_get_pdf_file_subpaths",
+            target = target,
+            value = _mock_get_pdf_file_subpaths
+        )
+        monkeypatch.setattr(
+            name = "_get_unique_inputs",
+            target = target,
+            value = _mock_get_unique_inputs
+        )
+
+        assert _get_pdf_file_paths() == pdf_file_paths
 
 class TestGetPDFFileSubpaths:
     """Tests for `_get_pdf_file_subpaths`."""
