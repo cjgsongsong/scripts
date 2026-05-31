@@ -10,6 +10,7 @@ from pytest import (
 )
 from unlock_pdf.enumerations import InputPrompt
 from unlock_pdf.functions import (
+    _get_passwords,
     _get_pdf_file_paths,
     _get_pdf_file_subpaths,
     _get_unique_inputs,
@@ -25,6 +26,90 @@ from unlock_pdf.types import MainInputPrompt
 #
 # See https://pytest.org/en/7.4.x/reference/reference.html#pytest.MonkeyPatch.setattr.
 import unlock_pdf.functions as target
+
+class TestGetPasswords:
+    """Tests for `_get_passwords`."""
+
+    NO_PASSWORD: list[str] = []
+
+    def test_get_passwords_errs_with_no_password(self, monkeypatch: MonkeyPatch) -> None:
+        """
+        Assert that `_get_passwords`
+        raises an appropriate exception
+        when given no password.
+        
+        :param monkeypatch: `pytest` fixture for mocking functions.
+        """
+
+        def _mock_get_unique_inputs(prompt: str) -> list[str]:
+            """
+            Mock function of `unlock-pdf.functions._get_unique_inputs` that
+            returns a mock ordered list of unique passwords to attempt unlocking each PDF file with.
+            
+            :param prompt: Prompt detailing what inputs are being asked of the user.
+            :returns Mock ordered list of unique passwords to attempt unlocking each PDF file with.
+            """
+
+            assert \
+                prompt == "Enter every password to attempt unlocking each PDF file with."
+
+            return self.NO_PASSWORD
+
+        monkeypatch.setattr(
+            name = "_get_unique_inputs",
+            target = target,
+            value = _mock_get_unique_inputs
+        )
+
+        with raises(
+            expected_exception = ValueError,
+            match = "At least one password must be given."
+        ):
+            _get_passwords()
+
+    @mark.parametrize(
+        "passwords",
+        [
+            ["password"],
+            ["password-0", "password-1"]
+        ]
+    )
+    def test_get_passwords_returns_with_valid_passwords(
+        self,
+        monkeypatch: MonkeyPatch,
+        passwords: list[str]
+    ) -> None:
+        """
+        Assert that `_get_passwords`
+        returns the ordered list of unique passwords to attempt unlocking each PDF file with
+        from inputted passwords.
+
+        :param monkeypatch: `pytest` fixture for mocking functions.
+        :param passwords: Mock return value of `_get_unique_inputs` that is also the
+                          ordered list of unique passwords to attempt unlocking each PDF file with.
+        """
+
+        def _mock_get_unique_inputs(prompt: str) -> list[str]:
+            """
+            Mock function of `unlock-pdf.functions._get_unique_inputs` that
+            returns a mock ordered list of unique passwords to attempt unlocking each PDF file with.
+            
+            :param prompt: Prompt detailing what inputs are being asked of the user.
+            :returns Mock ordered list of unique passwords to attempt unlocking each PDF file with.
+            """
+
+            assert \
+                prompt == "Enter every password to attempt unlocking each PDF file with."
+
+            return passwords
+
+        monkeypatch.setattr(
+            name = "_get_unique_inputs",
+            target = target,
+            value = _mock_get_unique_inputs
+        )
+
+        assert _get_passwords() == passwords
 
 class TestGetPDFFilePaths:
     """Tests for `_get_pdf_file_paths`."""
