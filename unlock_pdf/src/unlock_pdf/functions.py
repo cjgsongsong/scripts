@@ -29,7 +29,7 @@ def _get_passwords() -> Passwords:
     Get the passwords to attempt unlocking each PDF file with.
 
     :raises ValueError: If no password was given.
-    :returns: Set of passwords to attempt unlocking each PDF file with.
+    :returns: Ordered list of unique passwords to attempt unlocking each PDF file with.
     """
 
     passwords = _get_unique_inputs(InputPrompt.PASSWORDS)
@@ -48,18 +48,20 @@ def _get_pdf_file_paths() -> Paths:
     - file path of a PDF file.
 
     :raises FileNotFoundError: If every path does not ultimately point to a PDF file.
-    :returns: Set of paths of all PDF files to unlock.
+    :returns: Ordered list of unique paths of all PDF files to unlock.
     """
 
     paths = _get_unique_inputs(InputPrompt.PATHS)
-    pdf_file_paths: Paths = set()
+    pdf_file_paths: Paths = []
 
     for path in paths:
-        pdf_file_paths.update(
-            _get_pdf_file_subpaths(
-                _sanitize_path(path)
-            )
+        subpaths = _get_pdf_file_subpaths(
+            _sanitize_path(path)
         )
+
+        for subpath in subpaths:
+            if subpath not in pdf_file_paths:
+                pdf_file_paths.append(subpath)
 
     if not pdf_file_paths:
         raise FileNotFoundError(ErrorMessage.NO_VALID_PATH)
@@ -75,20 +77,18 @@ def _get_pdf_file_subpaths(path: str) -> Paths:
     - a file path of a PDF file.
 
     :param path: Directory path or file path of some PDF files to unlock.
-    :returns: Set of paths of some PDF files to unlock.
+    :returns: Ordered list of unique paths of some PDF files to unlock.
     """
 
     if isdir(path):
-        return set(
-            glob(
+        return glob(
                 pathname = path + Path.PDF_FILE_SEARCH_PATTERN,
                 recursive = True
-            )
         )
     elif _is_pdf_file(path):
-        return set(path)
+        return [path]
 
-    return set()
+    return []
 
 @typechecked
 def _get_unique_inputs(prompt: MainInputPrompt) -> Inputs:
@@ -96,18 +96,19 @@ def _get_unique_inputs(prompt: MainInputPrompt) -> Inputs:
     Get unique inputs until an empty string is given.
     
     :param prompt: Prompt detailing what inputs are being asked of the user.
-    :returns: Set of unique inputs.
+    :returns: Ordered list of unique inputs.
     """
 
     print(prompt)
     print(InputPrompt.END)
     print(InputPrompt.MARKER)
 
-    user_inputs: Inputs = set()
+    user_inputs: Inputs = []
 
     user_input = input()
     while user_input != "":
-        user_inputs.add(user_input)
+        if user_input not in user_inputs:
+            user_inputs.append(user_input)
 
         user_input = input()
 
@@ -187,12 +188,15 @@ def _unlock_pdf_file(
     :raises PdfError: If unlocking the PDF file via `pikepdf` failed.
     """
 
+    pdf_file_paths: Paths = []
+
     try:
         Pdf.open(file_path)
 
-        grouped_pdf_file_paths \
-            [FileState.NOT_LOCKED] \
-            .add(file_path)
+        pdf_file_paths = grouped_pdf_file_paths[FileState.NOT_LOCKED]
+
+        if file_path not in pdf_file_paths:
+            pdf_file_paths.append(file_path)
     except PasswordError:
         did_unlock = False
 
@@ -216,9 +220,11 @@ def _unlock_pdf_file(
                     ErrorMessage.FAILED_OVERWRITE(file_path)
                 ) from exception
 
-        grouped_pdf_file_paths \
-            [FileState.UNLOCKED if did_unlock else FileState.LOCKED] \
-            .add(file_path)
+        pdf_file_paths = grouped_pdf_file_paths \
+            [FileState.UNLOCKED if did_unlock else FileState.LOCKED]
+
+        if file_path not in pdf_file_paths:
+            pdf_file_paths.append(file_path)
 
 @typechecked
 def unlock_pdf() -> None:
@@ -241,7 +247,7 @@ def unlock_pdf() -> None:
     passwords = _get_passwords()
 
     grouped_pdf_file_paths: GroupedPaths = {
-        key: set()
+        key: []
         for key in [
             file_state for file_state in FileState
         ]
