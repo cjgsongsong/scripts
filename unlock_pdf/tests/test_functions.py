@@ -8,16 +8,17 @@ from pytest import (
     mark,
     raises
 )
-from unlock_pdf.enumerations import InputPrompt
+from unlock_pdf.enumerations import FileState, InputPrompt
 from unlock_pdf.functions import (
     _get_passwords,
     _get_pdf_file_paths,
     _get_pdf_file_subpaths,
     _get_unique_inputs,
     _is_pdf_file,
+    _log_unlock_attempt,
     _sanitize_path
 )
-from unlock_pdf.types import MainInputPrompt
+from unlock_pdf.types import GroupedPaths, MainInputPrompt
 
 # <NOTE>
 # As the source code prefers named imports over default imports,
@@ -545,6 +546,60 @@ class TestIsPDFFile:
         )
 
         assert _is_pdf_file(file_path) == flag_value
+
+class TestLogUnlockAttempt:
+    """Tests for `_log_unlock_attempt`."""
+
+    def test_log_unlock_attempt_prints_with_valid_grouped_pdf_file_paths(
+        self,
+        capsys: CaptureFixture[str]
+    ) -> None:
+        """
+        Assert that `_log_unlock_attempt`
+        prints for every file state
+
+        - how many PDF files are in such file state, and
+        - what are the file paths of those PDF files
+
+        when given valid grouped PDF file paths.
+
+        :param capsys: `pytest` fixture for capturing outputs.
+        """
+
+        grouped_pdf_file_paths: GroupedPaths = {
+            key: []
+            for key in [
+                file_state for file_state in FileState
+            ]
+        }
+        grouped_pdf_file_paths[FileState.NOT_LOCKED] = ["test-0.pdf"]
+        grouped_pdf_file_paths[FileState.UNLOCKED] = ["test-1.pdf", "test-2.pdf"]
+
+        _log_unlock_attempt(grouped_pdf_file_paths)
+
+        assert (
+            capsys \
+                .readouterr() \
+                .out
+        )== (
+            "0 PDF files are still locked:"
+            + "\n"
+            + "-"
+            + "\n"
+            + "\n"
+            + "1 PDF file is not locked:"
+            + "\n"
+            + "test-0.pdf"
+            + "\n"
+            + "\n"
+            + "2 PDF files are unlocked:"
+            + "\n"
+            + "test-1.pdf"
+            + "\n"
+            + "test-2.pdf"
+            + "\n"
+            + "\n"
+        )
 
 class TestSanitizePath:
     """Tests for `_sanitize_path`."""
