@@ -2,6 +2,8 @@
 
 # pyright: reportPrivateUsage=false
 
+from copy import deepcopy
+from pikepdf import PasswordError, PdfError
 from pytest import (
     CaptureFixture,
     MonkeyPatch,
@@ -16,7 +18,8 @@ from unlock_pdf.functions import (
     _get_unique_inputs,
     _is_pdf_file,
     _log_unlock_attempt,
-    _sanitize_path
+    _sanitize_path,
+    _unlock_pdf_file
 )
 from unlock_pdf.types import GroupedPaths, MainInputPrompt
 
@@ -627,3 +630,328 @@ class TestSanitizePath:
         """
 
         assert _sanitize_path(path) == sanitized_path
+
+class TestUnlockPDFFile:
+    """Tests for `_unlock_pdf_file`."""
+
+    BASE_GROUPED_PDF_FILE_PATHS: GroupedPaths = {
+        key: []
+        for key in [
+            file_state for file_state in FileState
+        ]
+    }
+
+    @mark.parametrize(
+        "passwords, pdf_password," \
+        "should_unlock",
+        [
+            (
+                ["password"],
+                "",
+                False,
+            ),
+            (
+                ["password"],
+                "password-0",
+                False,
+            ),
+            (
+                ["password-0", "password-1"],
+                "password-0",
+                True
+            ),
+            (
+                ["password-0", "password-1"],
+                "password-1",
+                True
+            )
+        ]
+    )
+    def test_unlock_pdf_file_attempts_unlocking(
+        self,
+        monkeypatch: MonkeyPatch,
+        passwords: list[str],
+        pdf_password: str,
+        should_unlock: bool
+    ) -> None:
+        """
+        Assert that `_unlock_pdf_file`
+        attempts unlocking a PDF file pointed at by the given file path.
+
+        :param monkeypatch: `pytest` fixture for mocking functions.
+        :param passwords: Passwords to attempt unlocking the PDF file with.
+        :param pdf_password: Password needed to unlock the PDF file with.
+        :param should_unlock: Whether the PDF file should have been unlocked or not.
+        """
+
+        did_unlock = False
+        class _MockPDF:
+            """Mock class of `pikepdf.Pdf`."""
+
+            @staticmethod
+            def open(
+                filename_or_stream: str,
+                allow_overwriting_input: bool = False,
+                password: str = "",
+            ) -> "_MockPDF":
+                """
+                Mock function of `pikepdf.Pdf.open` that
+                mocks
+                
+                - opening a PDF file, and
+                - raising an appropriate exception if said PDF file is not locked.
+                
+                :param allow_overwriting_input: Whether if the PDF file can be overwritten or not.
+                :param filename_or_stream: Sanitized file path of the PDF file to unlock.
+                :param password: Password needed to unlock the PDF file with.
+                :raises PasswordError: If the PDF file is not unlocked.
+                """
+
+                nonlocal did_unlock
+
+                assert allow_overwriting_input == (password != "")
+                assert filename_or_stream == "test.pdf"
+
+                if password != pdf_password:
+                    raise PasswordError
+
+                if pdf_password != "":
+                    did_unlock = True
+
+                return _MockPDF()
+
+            def save(self, filename_or_stream: str) -> None:
+                """
+                Mock function of `pikepdf.Pdf.save` that
+                mocks overwriting a PDF file.
+                """
+
+                assert did_unlock is True
+                assert filename_or_stream == "test.pdf"
+
+        monkeypatch.setattr(
+            name = "Pdf",
+            target = target,
+            value = _MockPDF
+        )
+
+        _unlock_pdf_file(
+            file_path = "test.pdf",
+            grouped_pdf_file_paths = deepcopy(self.BASE_GROUPED_PDF_FILE_PATHS),
+            passwords = passwords
+        )
+
+        assert did_unlock == should_unlock
+
+    @mark.parametrize(
+        "should_fail_on_open",
+        [True, False]
+    )
+    def test_unlock_pdf_file_errs_on_pikepdf_fail(
+        self,
+        monkeypatch: MonkeyPatch,
+        should_fail_on_open: bool
+    ) -> None:
+        """
+        Assert that `_unlock_pdf_file`
+        raises an appropriate exception
+        when `pikepdf` fails.
+
+        :param monkeypatch: `pytest` fixture for mocking functions.
+        :param should_fail_on_open: Whether `pikepdf` should fail
+                                    on attempt to open the PDF file or not.
+        """
+
+        class _MockFailingPDF:
+            """Mock class of failing `pikepdf.Pdf`."""
+
+            @staticmethod
+            def open(
+                filename_or_stream: str,
+                allow_overwriting_input: bool = False,
+                password: str = "",
+            ) -> "_MockFailingPDF":
+                """
+                Mock function of `pikepdf.Pdf.open` that
+                mocks raising an appropriate exception if
+
+                  - opening said PDF file fails, or
+                  - said PDF file is not locked.
+                
+                :param allow_overwriting_input: Whether if the PDF file can be overwritten or not.
+                :param filename_or_stream: Sanitized file path of the PDF file to unlock.
+                :param password: Password needed to unlock the PDF file with.
+                :raises PasswordError: If the PDF file is not unlocked.
+                :raises PdfError: If opening the PDF file fails.
+                """
+
+                assert allow_overwriting_input == (password != "")
+                assert filename_or_stream == "test.pdf"
+
+                if should_fail_on_open:
+                    raise PdfError
+                elif not allow_overwriting_input:
+                    raise PasswordError
+
+                return _MockFailingPDF()
+
+            def save(self, filename_or_stream: str) -> None:
+                """
+                Mock function of `pikepdf.Pdf.save` that
+                mocks overwriting a PDF file.
+
+                :raises PdfError: If saving the PDF file fails.
+                """
+
+                assert filename_or_stream == "test.pdf"
+
+                raise PdfError
+
+        monkeypatch.setattr(
+            name = "Pdf",
+            target = target,
+            value = _MockFailingPDF
+        )
+
+        with raises(
+            expected_exception = PdfError,
+            match = "Unlocking test.pdf failed."
+        ):
+            _unlock_pdf_file(
+                file_path = "test.pdf",
+                grouped_pdf_file_paths = deepcopy(self.BASE_GROUPED_PDF_FILE_PATHS),
+                passwords = ["password"]
+            )
+
+    locked_grouped_pdf_file_paths = deepcopy(BASE_GROUPED_PDF_FILE_PATHS)
+    not_locked_grouped_pdf_file_paths = deepcopy(BASE_GROUPED_PDF_FILE_PATHS)
+    unlocked_grouped_pdf_file_paths = deepcopy(BASE_GROUPED_PDF_FILE_PATHS)
+
+    locked_grouped_pdf_file_paths[FileState.LOCKED] = ["test.pdf"]
+    not_locked_grouped_pdf_file_paths[FileState.NOT_LOCKED] = ["test.pdf"]
+    unlocked_grouped_pdf_file_paths[FileState.UNLOCKED] = ["test.pdf"]
+
+    @mark.parametrize(
+        "initial_grouped_pdf_file_paths, passwords, pdf_password," \
+        "final_grouped_pdf_file_paths",
+        [
+            (
+                BASE_GROUPED_PDF_FILE_PATHS,
+                ["password"],
+                "password-0",
+                locked_grouped_pdf_file_paths,
+            ),
+            (
+                BASE_GROUPED_PDF_FILE_PATHS,
+                ["password"],
+                "",
+                not_locked_grouped_pdf_file_paths
+            ),
+            (
+                BASE_GROUPED_PDF_FILE_PATHS,
+                ["password"],
+                "password",
+                unlocked_grouped_pdf_file_paths
+            ),
+            (
+                locked_grouped_pdf_file_paths,
+                ["password"],
+                "password-0",
+                locked_grouped_pdf_file_paths
+            ),
+            (
+                not_locked_grouped_pdf_file_paths,
+                ["password"],
+                "",
+                not_locked_grouped_pdf_file_paths
+            ),
+            (
+                unlocked_grouped_pdf_file_paths,
+                ["password"],
+                "password",
+                unlocked_grouped_pdf_file_paths
+            )
+        ]
+    )
+    def test_unlock_pdf_file_groups_pdf_file_path(
+        self,
+        final_grouped_pdf_file_paths: GroupedPaths,
+        initial_grouped_pdf_file_paths: GroupedPaths,
+        monkeypatch: MonkeyPatch,
+        passwords: list[str],
+        pdf_password: str
+    ) -> None:
+        """
+        Assert that `_unlock_pdf_file`
+        adds a PDF file path to an appropriate file state group
+        based on unlocking result.
+
+        :param final_grouped_pdf_file_paths: Resulting dictionary that maps file states with
+                                             file paths of PDF files.
+        :param initial_grouped_pdf_file_paths: Starting dictionary that maps file states with
+                                               file paths of PDF files.
+        :param monkeypatch: `pytest` fixture for mocking functions.
+        :param passwords: Passwords to attempt unlocking the PDF file with.
+        :param pdf_password: Password needed to unlock the PDF file with.
+        """
+
+        did_unlock = False
+        grouped_pdf_file_paths = deepcopy(initial_grouped_pdf_file_paths)
+
+        class _MockPDF:
+            """Mock class of `pikepdf.Pdf`."""
+
+            @staticmethod
+            def open(
+                filename_or_stream: str,
+                allow_overwriting_input: bool = False,
+                password: str = "",
+            ) -> "_MockPDF":
+                """
+                Mock function of `pikepdf.Pdf.open` that
+                mocks
+                
+                - opening a PDF file, and
+                - raising an appropriate exception if said PDF file is not locked.
+                
+                :param allow_overwriting_input: Whether if the PDF file can be overwritten or not.
+                :param filename_or_stream: Sanitized file path of the PDF file to unlock.
+                :param password: Password needed to unlock the PDF file with.
+                :raises PasswordError: If the PDF file is not unlocked.
+                """
+
+                nonlocal did_unlock
+
+                assert allow_overwriting_input == (password != "")
+                assert filename_or_stream == "test.pdf"
+
+                if password != pdf_password:
+                    raise PasswordError
+
+                if pdf_password != "":
+                    did_unlock = True
+
+                return _MockPDF()
+
+            def save(self, filename_or_stream: str) -> None:
+                """
+                Mock function of `pikepdf.Pdf.save` that
+                mocks overwriting a PDF file.
+                """
+
+                assert did_unlock is True
+                assert filename_or_stream == "test.pdf"
+
+        monkeypatch.setattr(
+            name = "Pdf",
+            target = target,
+            value = _MockPDF
+        )
+
+        _unlock_pdf_file(
+            file_path = "test.pdf",
+            grouped_pdf_file_paths = grouped_pdf_file_paths,
+            passwords = passwords
+        )
+
+        assert grouped_pdf_file_paths == final_grouped_pdf_file_paths
