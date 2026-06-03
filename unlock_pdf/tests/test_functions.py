@@ -19,7 +19,8 @@ from unlock_pdf.functions import (
     _is_pdf_file,
     _log_unlock_attempt,
     _sanitize_path,
-    _unlock_pdf_file
+    _unlock_pdf_file,
+    unlock_pdf
 )
 from unlock_pdf.types import GroupedPaths, MainInputPrompt
 
@@ -630,6 +631,122 @@ class TestSanitizePath:
         """
 
         assert _sanitize_path(path) == sanitized_path
+
+class TestUnlockPDF:
+    """Tests for `unlock_pdf`."""
+
+    @mark.parametrize(
+        "pdf_file_paths",
+        [
+            ["test-0.pdf"],
+            ["test-0.pdf, test-1.pdf"]
+        ]
+    )
+    def test_unlock_pdf_calls_helper_functions(
+        self,
+        monkeypatch: MonkeyPatch,
+        pdf_file_paths: list[str]
+    ) -> None:
+        """
+        Assert that `unlock_pdf`
+        calls whenever appropriate
+        
+        - `_get_passwords`
+        - `_get_pdf_file_paths`
+        - `_log_unlock_attempt`, and
+        - `_unlock_pdf_file`.
+        
+        :param monkeypatch: `pytest` fixture for mocking functions.
+        :param pdf_file_paths: Ordered list of unique paths of all PDF files to unlock.
+        """
+
+        test_grouped_pdf_file_paths: GroupedPaths = {
+            key: []
+            for key in [
+                file_state for file_state in FileState
+            ]
+        }
+        test_passwords = ["password"]
+        unlock_count = 0
+
+        def _mock_get_passwords() -> list[str]:
+            """
+            Mock function of `unlock_pdf.functions._get_passwords` that
+            returns a mock ordered list of unique passwords to attempt unlocking each PDF file with.
+            
+            :returns Mock ordered list of unique passwords to attempt unlocking each PDF file with.
+            """
+
+            return test_passwords
+
+        def _mock_get_pdf_file_paths() -> list[str]:
+            """
+            Mock function of `unlock_pdf.functions._get_pdf_file_paths` that
+            returns a mock ordered list of unique paths of all PDF files to unlock.
+            
+            :returns Mock ordered list of unique paths of all PDF files to unlock.
+            """
+
+            return pdf_file_paths
+
+        def _mock_log_unlock_attempt(grouped_pdf_file_paths: GroupedPaths) -> None:
+            """
+            Mock function of `unlock_pdf.functions._log_unlock_attempt` that
+            mocks printing file state count.
+            
+            :param grouped_pdf_file_paths: Dictionary that maps file states
+                                           with file paths of PDF files.
+            """
+
+            assert grouped_pdf_file_paths == test_grouped_pdf_file_paths
+
+        def _mock_unlock_pdf_file(
+            file_path: str,
+            grouped_pdf_file_paths: GroupedPaths,
+            passwords: list[str]
+        ) -> None:
+            """
+            Mock function of `unlock_pdf.functions._mock_unlock_pdf_file` that
+            mocks unlocking of a PDF file.
+
+            :param file_path: Sanitized file path of the PDF file to unlock.
+            :param grouped_pdf_file_paths: Dictionary that maps file states
+                                           with file paths of PDF files.
+            :param passwords: Passwords to attempt unlocking the PDF file with.
+            """
+
+            nonlocal unlock_count
+
+            assert file_path in pdf_file_paths
+            assert grouped_pdf_file_paths == test_grouped_pdf_file_paths
+            assert passwords == test_passwords
+
+            unlock_count += 1
+
+        monkeypatch.setattr(
+            name = "_get_passwords",
+            target = target,
+            value = _mock_get_passwords
+        )
+        monkeypatch.setattr(
+            name = "_get_pdf_file_paths",
+            target = target,
+            value = _mock_get_pdf_file_paths
+        )
+        monkeypatch.setattr(
+            name = "_log_unlock_attempt",
+            target = target,
+            value = _mock_log_unlock_attempt
+        )
+        monkeypatch.setattr(
+            name = "_unlock_pdf_file",
+            target = target,
+            value = _mock_unlock_pdf_file
+        )
+
+        unlock_pdf()
+
+        assert unlock_count == len(pdf_file_paths)
 
 class TestUnlockPDFFile:
     """Tests for `_unlock_pdf_file`."""
