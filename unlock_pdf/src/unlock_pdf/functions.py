@@ -225,6 +225,10 @@ def _unlock_pdf_file(
 
         if file_path not in pdf_file_paths:
             pdf_file_paths.append(file_path)
+    except Exception as exception:
+        raise PdfError(
+            ErrorMessage.FAILED_OVERWRITE(file_path)
+        ) from exception
 
 @typechecked
 def unlock_pdf() -> None:
