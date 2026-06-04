@@ -27,6 +27,8 @@ class ErrorMessage(MessageEnum):
     EMPTY_FILE_PATH = "File path must be a non-empty string."
     FAILED_OVERWRITE = _generate_failed_overwrite_error_message
     NEGATIVE_FILE_STATE_COUNT = "File state count must be a non-negative integer."
+    NO_INVALID_EXECUTION = "`unlock_pdf` must only be executed if directly imported from " + \
+                           "`unlock_pdf.functions` and not from here."
     NO_VALID_PASSWORD = "At least one password must be given."
     NO_VALID_PATH = "At least one path must ultimately point to a PDF file."
 
@@ -79,14 +81,15 @@ class LogMessage(MessageEnum):
     FILE_STATE_COUNT = _generate_file_state_count_log_message
     NO_PDF_FILE_PATH = "-"
 
+class Module(StrEnum):
+    """Enumeration of module names."""
+
+    DIRECT_EXECUTION = "__main__"
+    PACKAGE_EXECUTION = "unlock_pdf.__main__"
+
 class Path(StrEnum):
     """Enumeration of path constants."""
 
     PDF_FILE_EXTENSION = ".pdf"
     PDF_FILE_SEARCH_PATTERN = "/**/*.pdf"
     QUOTATION_MARK = '"'
-
-class Python(StrEnum):
-    """Enumeration of Python constants."""
-
-    DIRECT_EXECUTION_MODULE = "__main__"
