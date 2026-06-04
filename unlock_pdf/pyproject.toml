@@ -10,8 +10,8 @@ dependencies = [
     "pikepdf (>=10.7.0,<11.0.0)"
 ]
 
-[tool.poetry.scripts]
-unlock-pdf = "src.unlock_pdf.__main__:unlock_pdf"
+[project.scripts]
+unlock-pdf = "unlock_pdf.__main__:unlock_pdf"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
