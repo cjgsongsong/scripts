@@ -1,22 +1,20 @@
-"""Tests for `unlock.pdf` entry point."""
+"""Tests for `unlock-pdf` entry point."""
 
-from runpy import run_module
 from pytest import mark, raises
+from runpy import run_module
 from unlock_pdf.enumerations import Module
 
 @mark.parametrize(
-    "executed_module," \
-    "exception_type, exception_message",
+    "test_executed_module," \
+    "test_exception_type, test_exception_message",
     [
         (
             Module.DIRECT_EXECUTION,
-            OSError,
-            None
+            OSError, None
         ),
         (
             Module.PACKAGE_EXECUTION,
-            OSError,
-            None
+            OSError, None
         ),
         (
             "importing_module",
@@ -26,32 +24,33 @@ from unlock_pdf.enumerations import Module
         )
     ]
 )
-def test_entry_point_errs_on_module_execution(
-    exception_message: str | None,
-    exception_type: type[Exception],
-    executed_module: str
+def test_entry_point_raises_exception(
+    test_exception_message: str | None,
+    test_exception_type: type[Exception],
+    test_executed_module: str
 ):
     """
-    Assert that the `unlock.pdf` entry point
-    calls `unlock_pdf` only on a direct execution
-    as seen as when it
+    Assert that the entry point
+    calls `unlock_pdf` only when the execution is valid,
+    specifically by asserting that it
     raises an appropriate exception.
 
-    Note that calling `unlock_pdf` in this test will raise an exception as
+    Note that this test expects that a valid call to `unlock_pdf` will raise an exception as
     
     - inputs are expected, and
     - no mock function of `builtins.input` is provided.
 
-    :param exception_message: Message of exception raised, if relevant to be tested.
-    :param exception_type: Type of exception raised.
-    :param executed_module: Name of executed module.
+    :param test_exception_message: Message of exception raised, if relevant to be tested.
+                                   Otherwise, `None`.
+    :param test_exception_type: Type of exception raised.
+    :param test_executed_module: Name of executed module.
     """
 
     with raises(
-        expected_exception = exception_type,
-        match = exception_message
+        expected_exception = test_exception_type,
+        match = test_exception_message
     ):
         run_module(
             mod_name = "unlock_pdf",
-            run_name = executed_module
+            run_name = test_executed_module
         )
