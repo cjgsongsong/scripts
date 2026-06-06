@@ -1,0 +1,106 @@
+"""Tests for `unlock_pdf`."""
+
+from pytest import MonkeyPatch, mark
+from unlock_pdf.enumerations import FileState
+from unlock_pdf.functions import unlock_pdf
+from unlock_pdf.types import GroupedPaths
+
+# <NOTE>
+# As the source code prefers named imports over default imports,
+# those named imports must be mocked by having the target be where they are named
+# instead of where they actually came from.
+#
+# See https://pytest.org/en/7.4.x/reference/reference.html#pytest.MonkeyPatch.setattr.
+import unlock_pdf.functions as target
+
+@mark.parametrize(
+    "test_pdf_file_paths",
+    [
+        ["test-0.pdf"],
+        ["test-0.pdf, test-1.pdf"]
+    ]
+)
+def test_unlock_pdf_calls_helper_functions(
+    monkeypatch: MonkeyPatch,
+    test_pdf_file_paths: list[str]
+) -> None:
+    """
+    Assert that `unlock_pdf`
+    calls whenever appropriate
+    
+    - `_get_passwords`
+    - `_get_pdf_file_paths`
+    - `_log_unlock_attempt`, and
+    - `_unlock_pdf_file`.
+    
+    :param monkeypatch: `pytest` fixture for mocking functions.
+    :param test_pdf_file_paths: Ordered list of unique paths of all PDF files to unlock.
+    """
+
+    test_grouped_pdf_file_paths: GroupedPaths = {
+        key: []
+        for key in [
+            file_state for file_state in FileState
+        ]
+    }
+    test_passwords = ["password"]
+    unlock_count = 0
+
+    def _mock_log_unlock_attempt(grouped_pdf_file_paths: GroupedPaths) -> None:
+        """
+        Mock function of `unlock_pdf.functions._log_unlock_attempt` that
+        mocks printing file state count.
+        
+        :param grouped_pdf_file_paths: Dictionary that maps file states
+                                       with file paths of PDF files.
+        """
+
+        assert grouped_pdf_file_paths == test_grouped_pdf_file_paths
+
+    def _mock_unlock_pdf_file(
+        file_path: str,
+        grouped_pdf_file_paths: GroupedPaths,
+        passwords: list[str]
+    ) -> None:
+        """
+        Mock function of `unlock_pdf.functions._mock_unlock_pdf_file` that
+        mocks unlocking of a PDF file.
+
+        :param file_path: Sanitized file path of the PDF file to unlock.
+        :param grouped_pdf_file_paths: Dictionary that maps file states
+                                       with file paths of PDF files.
+        :param passwords: Passwords to attempt unlocking the PDF file with.
+        """
+
+        nonlocal unlock_count
+
+        assert file_path in test_pdf_file_paths
+        assert grouped_pdf_file_paths == test_grouped_pdf_file_paths
+        assert passwords == test_passwords
+
+        unlock_count += 1
+
+    monkeypatch.setattr(
+        name = "_get_passwords",
+        target = target,
+        value = lambda: test_passwords
+    )
+    monkeypatch.setattr(
+        name = "_get_pdf_file_paths",
+        target = target,
+        value = lambda: test_pdf_file_paths
+    )
+    monkeypatch.setattr(
+        name = "_log_unlock_attempt",
+        target = target,
+        value = _mock_log_unlock_attempt
+    )
+    monkeypatch.setattr(
+        name = "_unlock_pdf_file",
+        target = target,
+        value = _mock_unlock_pdf_file
+    )
+
+    unlock_pdf()
+
+    assert unlock_count == len(test_pdf_file_paths)
