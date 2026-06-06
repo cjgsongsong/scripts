@@ -28,6 +28,7 @@ def _get_passwords() -> Passwords:
     """
     Get the passwords to attempt unlocking each PDF file with.
 
+    :raises TypeCheckError: If any argument or return value has an invalid type.
     :raises ValueError: If no password was given.
     :returns: Ordered list of unique passwords to attempt unlocking each PDF file with.
     """
@@ -48,6 +49,7 @@ def _get_pdf_file_paths() -> Paths:
     - file path of a PDF file.
 
     :raises FileNotFoundError: If every path does not ultimately point to a PDF file.
+    :raises TypeCheckError: If any argument or return value has an invalid type.
     :returns: Ordered list of unique paths of all PDF files to unlock.
     """
 
@@ -77,6 +79,7 @@ def _get_pdf_file_subpaths(path: str) -> Paths:
     - a file path of a PDF file.
 
     :param path: Directory path or file path of some PDF files to unlock.
+    :raises TypeCheckError: If any argument or return value has an invalid type.
     :returns: Ordered list of unique paths of some PDF files to unlock.
     """
 
@@ -96,6 +99,7 @@ def _get_unique_inputs(prompt: MainInputPrompt) -> Inputs:
     Get unique inputs until an empty string is given.
     
     :param prompt: Prompt detailing what inputs are being asked of the user.
+    :raises TypeCheckError: If any argument or return value has an invalid type.
     :returns: Ordered list of unique inputs.
     """
 
@@ -123,6 +127,7 @@ def _is_pdf_file(file_path: str) -> bool:
     - points to a file.
 
     :param file_path: Path of a file.
+    :raises TypeCheckError: If any argument or return value has an invalid type.
     :returns: Whether the file path directly points to a PDF file or not.
     """
 
@@ -140,6 +145,7 @@ def _log_unlock_attempt(grouped_pdf_file_paths: GroupedPaths) -> None:
     - what are the file paths of those PDF files.
 
     :param grouped_pdf_file_paths: Dictionary that maps file states with file paths of PDF files.
+    :raises TypeCheckError: If any argument or return value has an invalid type.
     """
 
     for file_state, pdf_file_paths in grouped_pdf_file_paths.items():
@@ -166,6 +172,7 @@ def _sanitize_path(path: str) -> str:
     Remove quotation marks from a pasted path.
 
     :param path: Directory path or file path of some PDF files to unlock.
+    :raises TypeCheckError: If any argument or return value has an invalid type.
     :returns: Sanitized aforementioned path.
     """
 
@@ -186,6 +193,7 @@ def _unlock_pdf_file(
     :param grouped_pdf_file_paths: Dictionary that maps file states with file paths of PDF files.
     :param passwords: Passwords to attempt unlocking the PDF file with.
     :raises PdfError: If unlocking the PDF file via `pikepdf` failed.
+    :raises TypeCheckError: If any argument or return value has an invalid type.
     """
 
     pdf_file_paths: Paths = []
@@ -242,6 +250,7 @@ def unlock_pdf() -> None:
 
     :raises FileNotFoundError: If every path does not ultimately point to a PDF file.
     :raises PdfError: If unlocking a PDF file via `_unlock_pdf` failed.
+    :raises TypeCheckError: If any argument or return value has an invalid type.
     :raises ValueError: If no password was given.
     """
 
