@@ -10,16 +10,15 @@ from pytest import (
     mark,
     raises
 )
-from unlock_pdf.enumerations import FileState, InputPrompt
+from unlock_pdf.enumerations import FileState
 from unlock_pdf.functions import (
-    _get_unique_inputs,
     _is_pdf_file,
     _log_unlock_attempt,
     _sanitize_path,
     _unlock_pdf_file,
     unlock_pdf
 )
-from unlock_pdf.types import GroupedPaths, MainInputPrompt
+from unlock_pdf.types import GroupedPaths
 
 # <NOTE>
 # As the source code prefers named imports over default imports,
@@ -28,130 +27,6 @@ from unlock_pdf.types import GroupedPaths, MainInputPrompt
 #
 # See https://pytest.org/en/7.4.x/reference/reference.html#pytest.MonkeyPatch.setattr.
 import unlock_pdf.functions as target
-
-class TestGetUniqueInputs:
-    """Tests for `_get_unique_inputs`."""
-
-    NO_UNIQUE_INPUT: list[str] = []
-    TARGET_INPUT_FUNCTION = "builtins.input"
-
-    @mark.parametrize(
-        "prompt," \
-        "main_input_prompt",
-        [
-            (
-                InputPrompt.PASSWORDS,
-                "Enter every password to attempt unlocking each PDF file with."
-            ),
-            (
-                InputPrompt.PATHS,
-                "Enter every directory path and/or file path of the PDF files to unlock."
-            )
-        ]
-    )
-    def test_get_unique_inputs_prints_with_valid_prompt(
-        self,
-        capsys: CaptureFixture[str],
-        main_input_prompt: MainInputPrompt,
-        monkeypatch: MonkeyPatch,
-        prompt: MainInputPrompt
-    ) -> None:
-        """
-        Assert that `_get_unique_inputs`
-        prints prompts
-
-        - in correct order, and
-        - including the given prompt
-
-        when given a valid prompt.
-
-        :param capsys: `pytest` fixture for capturing outputs.
-        :param main_input_prompt: Printed main input prompt.
-        :param monkeypatch: `pytest` fixture for mocking functions.
-        :param prompt: Prompt detailing what inputs are being asked of the user.
-        """
-
-        monkeypatch.setattr(self.TARGET_INPUT_FUNCTION, lambda: "")
-
-        _get_unique_inputs(prompt)
-
-        assert (
-            capsys \
-                .readouterr() \
-                .out
-        ) == (
-            main_input_prompt
-            + "\n"
-            + "Enter an empty string to quit."
-            + "\n"
-            + ">"
-            + "\n"
-        )
-
-    @mark.parametrize(
-        "user_inputs," \
-        "unique_inputs",
-        [
-            (
-                [""],
-                NO_UNIQUE_INPUT,
-            ),
-            (
-                ["password", ""],
-                ["password"]
-            ),
-            (
-                [
-                    "password",
-                    "password",
-                    ""
-                ],
-                ["password"]
-            ),
-            (
-                [
-                    "password",
-                    "another_password",
-                    ""
-                ],
-                ["password", "another_password"]
-            )
-        ]
-    )
-    def test_get_unique_inputs_returns_with_valid_prompt(
-        self,
-        monkeypatch: MonkeyPatch,
-        unique_inputs: list[str],
-        user_inputs: list[str]
-    ) -> None:
-        """
-        Assert that `_get_unique_inputs`
-        returns all unique inputs as an ordered list
-        when given a valid prompt.
-
-        :param monkeypatch: `pytest` fixture for mocking functions.
-        :param unique_inputs: Ordered list of unique inputs.
-        :param user_inputs: User inputs.
-        """
-
-        call_count = -1
-
-        def _mock_input() -> str:
-            """
-            Mock function of `builtins.input` that
-            returns a mock user input based on how many times the function has been called.
-
-            :returns: Mock user input.
-            """
-            nonlocal call_count
-
-            call_count += 1
-
-            return user_inputs[call_count]
-
-        monkeypatch.setattr(self.TARGET_INPUT_FUNCTION, _mock_input)
-
-        assert _get_unique_inputs(InputPrompt.PASSWORDS) == unique_inputs
 
 class TestIsPDFFile:
     """Tests for `_is_pdf_file`."""
