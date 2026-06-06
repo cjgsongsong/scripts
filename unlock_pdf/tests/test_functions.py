@@ -10,11 +10,7 @@ from pytest import (
     raises
 )
 from unlock_pdf.enumerations import FileState
-from unlock_pdf.functions import (
-    _sanitize_path,
-    _unlock_pdf_file,
-    unlock_pdf
-)
+from unlock_pdf.functions import _unlock_pdf_file, unlock_pdf
 from unlock_pdf.types import GroupedPaths
 
 # <NOTE>
@@ -24,33 +20,6 @@ from unlock_pdf.types import GroupedPaths
 #
 # See https://pytest.org/en/7.4.x/reference/reference.html#pytest.MonkeyPatch.setattr.
 import unlock_pdf.functions as target
-
-class TestSanitizePath:
-    """Tests for `_sanitize_path`."""
-
-    @mark.parametrize(
-        "path," \
-        "sanitized_path",
-        [
-            ('"test.pdf"', "test.pdf"),
-            ("test.pdf", "test.pdf")
-        ]
-    )
-    def test_sanitize_path_returns_with_valid_path(
-        self,
-        path: str,
-        sanitized_path: str
-    ) -> None:
-        """
-        Assert that `_sanitize_path`
-        returns the sanitized given path
-        when given a valid path.
-
-        :param path: Directory path or file path of some PDF files to unlock.
-        :param sanitized_path: Sanitized aforementioned path.
-        """
-
-        assert _sanitize_path(path) == sanitized_path
 
 class TestUnlockPDF:
     """Tests for `unlock_pdf`."""
