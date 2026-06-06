@@ -14,7 +14,7 @@ class ErrorMessage(MessageEnum):
         Generate an error message for failed overwrite based on the path of a PDF file.
         
         :param file_path: Path of a PDF file.
-        :raises TypeCheckError: If any argument has an invalid type.
+        :raises TypeCheckError: If any argument or return value has an invalid type.
         :raises ValueError: If the file path is an empty string.
         :returns: Error message for failed overwrite.
         """
@@ -65,7 +65,7 @@ class LogMessage(MessageEnum):
 
         :param file_state: State of a PDF file after an unlock attempt.
         :param file_state_count: Number of PDF files that are in said file state.
-        :raises TypeCheckError: If any argument has an invalid type.
+        :raises TypeCheckError: If any argument or return value has an invalid type.
         :raises ValueError: If the file state count is a negative integer.
         :returns: Log message detailing the number of PDF files that are in said file state.
         """
