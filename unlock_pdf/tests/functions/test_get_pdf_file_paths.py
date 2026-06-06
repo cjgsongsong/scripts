@@ -32,7 +32,7 @@ def test_get_pdf_file_paths_raises_exception(monkeypatch: MonkeyPatch) -> None:
         name = "_get_unique_inputs",
         target = target,
         value = generate_mock_get_unique_inputs(
-            mock_inputs = [],
+            test_inputs = [],
             test_prompt = "Enter every directory path and/or file path of the PDF files to unlock."
         )
     )
@@ -109,7 +109,7 @@ def test_get_pdf_file_paths_returns_pdf_file_paths(
         name = "_get_unique_inputs",
         target = target,
         value = generate_mock_get_unique_inputs(
-            mock_inputs = test_paths,
+            test_inputs = test_paths,
             test_prompt = "Enter every directory path and/or file path of the PDF files to unlock."
         )
     )

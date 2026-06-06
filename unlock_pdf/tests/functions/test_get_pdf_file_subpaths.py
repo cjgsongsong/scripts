@@ -79,7 +79,7 @@ def test_get_pdf_file_subpaths_returns_pdf_file_subpaths(
         name = "_is_pdf_file",
         target = target,
         value = generate_mock_boolean(
-            mock_boolean = test_is_pdf_file,
+            test_boolean = test_is_pdf_file,
             test_path = test_path
         )
     )
@@ -92,7 +92,7 @@ def test_get_pdf_file_subpaths_returns_pdf_file_subpaths(
         name = "isdir",
         target = target,
         value = generate_mock_boolean(
-            mock_boolean = test_is_directory,
+            test_boolean = test_is_directory,
             test_path = test_path
         )
     )
