@@ -1,6 +1,6 @@
 [project]
 name = "unlock-pdf"
-version = "0.7.0"
+version = "0.8.0"
 description = "Script for unlocking password-protected PDF files"
 authors = [
     {name = "Siege Songsong",email = "cjgsongsong@gmail.com"}
@@ -10,9 +10,16 @@ dependencies = [
     "pikepdf (>=10.7.0,<11.0.0)"
 ]
 
-[tool.poetry.scripts]
-unlock-pdf = "src.unlock_pdf.__main__:unlock_pdf"
+[project.scripts]
+unlock-pdf = "unlock_pdf.__main__:unlock_pdf"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.0.3,<10.0.0)",
+    "pytest-cov (>=7.1.0,<8.0.0)",
+    "typeguard (>=4.5.2,<5.0.0)"
+]

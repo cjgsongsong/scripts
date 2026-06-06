@@ -152,6 +152,15 @@ Enter an empty string to quit.
 
 ## Changelog
 
+- `v0.8.0`
+  - handled
+    - failed overwrite
+    - import execution
+    - invalid message generation arguments
+  - improved documentation
+  - refactored code
+  - tested code
+  - type-checked functions
 - `v0.7.0`
   - allowed package execution
   - improved
