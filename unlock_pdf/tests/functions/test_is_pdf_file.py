@@ -57,7 +57,7 @@ def test_is_pdf_file_returns_boolean(
         name = "isfile",
         target = target,
         value = generate_mock_boolean(
-            mock_boolean = test_is_file,
+            test_boolean = test_is_file,
             test_path = test_file_path
         )
     )

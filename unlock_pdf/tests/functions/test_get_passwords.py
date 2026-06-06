@@ -32,7 +32,7 @@ def test_get_passwords_raises_exception(monkeypatch: MonkeyPatch) -> None:
         name = "_get_unique_inputs",
         target = target,
         value = generate_mock_get_unique_inputs(
-            mock_inputs = [],
+            test_inputs = [],
             test_prompt = "Enter every password to attempt unlocking each PDF file with."
         )
     )
@@ -68,7 +68,7 @@ def test_get_passwords_returns_passwords(
         name = "_get_unique_inputs",
         target = target,
         value = generate_mock_get_unique_inputs(
-            mock_inputs = test_passwords,
+            test_inputs = test_passwords,
             test_prompt = "Enter every password to attempt unlocking each PDF file with."
         )
     )
