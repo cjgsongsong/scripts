@@ -13,7 +13,7 @@ from unlock_pdf.functions import _sanitize_path
         ("test.pdf", "test.pdf")
     ]
 )
-def test_sanitize_path_returns_with_valid_path(test_path: str, test_sanitized_path: str) -> None:
+def test_sanitize_path_returns_sanitized_path(test_path: str, test_sanitized_path: str) -> None:
     """
     Assert that `_sanitize_path`
     returns the sanitized version of the given path
