@@ -12,7 +12,6 @@ from pytest import (
 )
 from unlock_pdf.enumerations import FileState
 from unlock_pdf.functions import (
-    _is_pdf_file,
     _log_unlock_attempt,
     _sanitize_path,
     _unlock_pdf_file,
@@ -27,74 +26,6 @@ from unlock_pdf.types import GroupedPaths
 #
 # See https://pytest.org/en/7.4.x/reference/reference.html#pytest.MonkeyPatch.setattr.
 import unlock_pdf.functions as target
-
-class TestIsPDFFile:
-    """Tests for `_is_pdf_file`."""
-
-    @mark.parametrize(
-        "file_path, is_file," \
-        "flag_value",
-        [
-            (
-                "corrupted-test.pdf",
-                False,
-                False
-            ),
-            (
-                "test.pdf",
-                True,
-                True
-            ),
-            (
-                "test.txt",
-                False,
-                False
-            ),
-            (
-                "test.txt",
-                True,
-                False
-            )
-        ]
-    )
-    def test_is_pdf_file_returns_with_valid_file_path(
-        self,
-        file_path: str,
-        flag_value: bool,
-        is_file: bool,
-        monkeypatch: MonkeyPatch
-    ) -> None:
-        """
-        Assert that `_is_pdf_file`
-        returns whether the file path directly points to a PDF file or not
-        when given a valid file path.
-        
-        :param file_path: Path of a file.
-        :param flag_value: Whether the file path directly points to a PDF file or not.
-        :param is_file: Mock return value of `os.path.isfile`.
-        :param monkeypatch: `pytest` fixture for mocking functions.
-        """
-
-        def _mock_isfile(path: str) -> bool:
-            """
-            Mock function of `os.path.isfile` that
-            returns a mock boolean that tells whether the path directly points to a file or not.
-            
-            :param path: Path.
-            :returns: Mock boolean that tells whether the path directly points to a file or not.
-            """
-
-            assert path == file_path
-
-            return is_file
-
-        monkeypatch.setattr(
-            name = "isfile",
-            target = target,
-            value = _mock_isfile
-        )
-
-        assert _is_pdf_file(file_path) == flag_value
 
 class TestLogUnlockAttempt:
     """Tests for `_log_unlock_attempt`."""

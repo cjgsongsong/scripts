@@ -3,7 +3,7 @@
 # pyright: reportPrivateUsage=false
 
 from pytest import MonkeyPatch, mark
-from typing import Callable
+from tests.utilities import generate_mock_boolean
 from unlock_pdf.functions import _get_pdf_file_subpaths
 from unlock_pdf.types import Paths
 
@@ -60,42 +60,6 @@ def test_get_pdf_file_subpaths_returns_pdf_file_subpaths(
     :param test_pdf_file_subpaths: Ordered list of unique paths of some PDF files to unlock.
     """
 
-    def _generate_mock_boolean(mock_boolean: bool) -> Callable[[str], bool]:
-        """
-        Generate either
-        
-        - `_mock_isdir`, or
-        - `_mock_is_pdf_file`
-        
-        given
-        
-        - mock boolean, and
-        - mock path.
-        
-        :param mock_boolean: Mock boolean that tells whether the path satisfies a condition or not.
-        :returns: Mock function of either `os.path.isdir` or `unlock-pdf.functions._is_pdf_file`.
-        """
-
-        def _mock_boolean(pathname: str) -> bool:
-            """
-            Mock function of either
-            
-            - `os.path.isdir`, or
-            - `unlock-pdf.functions._is_pdf_file`
-            
-            that
-            returns a mock boolean that tells whether the path satisfies a condition or not.
-
-            :param pathname: Path.
-            :returns: Mock boolean that tells whether the path satisfies a condition or not.
-            """
-
-            assert pathname == test_path
-
-            return mock_boolean
-
-        return _mock_boolean
-
     def _mock_glob(pathname: str, recursive: bool) -> Paths:
         """
         Mock function of `glob.glob` that
@@ -114,7 +78,10 @@ def test_get_pdf_file_subpaths_returns_pdf_file_subpaths(
     monkeypatch.setattr(
         name = "_is_pdf_file",
         target = target,
-        value = _generate_mock_boolean(test_is_pdf_file)
+        value = generate_mock_boolean(
+            mock_boolean = test_is_pdf_file,
+            test_path = test_path
+        )
     )
     monkeypatch.setattr(
         name = "glob",
@@ -124,7 +91,10 @@ def test_get_pdf_file_subpaths_returns_pdf_file_subpaths(
     monkeypatch.setattr(
         name = "isdir",
         target = target,
-        value = _generate_mock_boolean(test_is_directory)
+        value = generate_mock_boolean(
+            mock_boolean = test_is_directory,
+            test_path = test_path
+        )
     )
 
     assert _get_pdf_file_subpaths(test_path) == test_pdf_file_subpaths

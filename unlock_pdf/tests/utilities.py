@@ -3,6 +3,46 @@
 from typing import Callable
 from unlock_pdf.types import Inputs
 
+def generate_mock_boolean(mock_boolean: bool, test_path: str) -> Callable[[str], bool]:
+    """
+    Generate either
+    
+    - `_mock_isdir`,
+    - `_mock_isfile`, or
+    - `_mock_is_pdf_file`
+    
+    given
+    
+    - mock boolean, and
+    - test path.
+    
+    :param mock_boolean: Mock boolean that tells whether the path satisfies a condition or not.
+    :param test_path: Path.
+    :returns: Mock function of either `os.path.isdir`, `os.path.isfile`, or
+              `unlock-pdf.functions._is_pdf_file`.
+    """
+
+    def _mock_boolean(pathname: str) -> bool:
+        """
+        Mock function of either
+        
+        - `os.path.isdir`,
+        - `os.path.isfile`, or
+        - `unlock-pdf.functions._is_pdf_file`
+        
+        that
+        returns a mock boolean that tells whether the path satisfies a condition or not.
+
+        :param pathname: Path.
+        :returns: Mock boolean that tells whether the path satisfies a condition or not.
+        """
+
+        assert pathname == test_path
+
+        return mock_boolean
+
+    return _mock_boolean
+
 def generate_mock_get_unique_inputs(
     mock_inputs: Inputs,
     test_prompt: str
