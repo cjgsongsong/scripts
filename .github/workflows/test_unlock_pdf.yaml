@@ -1,0 +1,26 @@
+name: Automated `unlock-pdf` Tests
+on:
+  pull_request:
+    branches: main
+    paths: unlock_pdf/**
+  workflow_dispatch:
+jobs:
+  test-unlock-pdf:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ">=3.14"
+      - name: Install Poetry
+        run: |
+          pip install --user pipx
+          pipx install poetry
+      - name: Install dependencies
+        working-directory: unlock_pdf
+        run: poetry install
+      - name: Run tests
+        working-directory: unlock_pdf
+        run: poetry run pytest --cov src/unlock_pdf --cov-fail-under 100
