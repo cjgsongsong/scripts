@@ -1,6 +1,6 @@
 """`unlock-pdf` functions."""
 
-from glob import glob
+from glob import escape, glob
 from os.path import isdir, isfile
 from pikepdf import (
     PasswordError,
@@ -85,8 +85,8 @@ def _get_pdf_file_subpaths(path: str) -> Paths:
 
     if isdir(path):
         return glob(
-                pathname = path + Path.PDF_FILE_SEARCH_PATTERN,
-                recursive = True
+            pathname = escape(path) + Path.PDF_FILE_SEARCH_PATTERN,
+            recursive = True
         )
     elif _is_pdf_file(path):
         return [path]
