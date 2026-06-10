@@ -93,13 +93,19 @@ Supposing the user is at the repository's root directory, using the script is as
    cd unlock_pdf
    ```
 
-2. Run using Poetry either the script's package
+2. Run the script using Poetry either as a package,
 
    ```bash
    poetry run unlock-pdf
    ```
 
-   or the script's main file.
+   module,
+
+   ```bash
+   poetry run python -m unlock_pdf
+   ```
+
+   or file.
 
    ```bash
    poetry run python src/unlock_pdf/__main__.py
