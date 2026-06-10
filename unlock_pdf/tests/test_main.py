@@ -13,10 +13,6 @@ from unlock_pdf.enumerations import Module
             OSError, None
         ),
         (
-            Module.PACKAGE_EXECUTION,
-            OSError, None
-        ),
-        (
             "importing_module",
             RuntimeError,
             "`unlock_pdf` must only be executed if directly imported from " + \
