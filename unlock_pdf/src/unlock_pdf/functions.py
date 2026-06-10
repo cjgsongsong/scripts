@@ -8,6 +8,7 @@ from pikepdf import (
     PdfError
 )
 from typeguard import typechecked
+from unlock_pdf.classes import PathDictionary
 from unlock_pdf.enumerations import (
     ErrorMessage,
     FileState,
@@ -16,7 +17,6 @@ from unlock_pdf.enumerations import (
     Path
 )
 from unlock_pdf.types import (
-    GroupedPaths,
     MainInputPrompt,
     Inputs,
     Passwords,
@@ -137,18 +137,18 @@ def _is_pdf_file(file_path: str) -> bool:
     )
 
 @typechecked
-def _log_unlock_attempt(grouped_pdf_file_paths: GroupedPaths) -> None:
+def _log_unlock_attempt(path_dictionary: PathDictionary) -> None:
     """
     Log for every file state
 
     - how many PDF files are in such file state, and
     - what are the file paths of those PDF files.
 
-    :param grouped_pdf_file_paths: Dictionary that maps file states with file paths of PDF files.
+    :param path_dictionary: Dictionary that maps file states with file paths of PDF files.
     :raises TypeCheckError: If any argument or return value has an invalid type.
     """
 
-    for file_state, pdf_file_paths in grouped_pdf_file_paths.items():
+    for file_state, pdf_file_paths in path_dictionary.items():
         file_state_count = len(pdf_file_paths)
 
         print(
@@ -183,28 +183,26 @@ def _sanitize_path(path: str) -> str:
 @typechecked
 def _unlock_pdf_file(
         file_path: str,
-        grouped_pdf_file_paths: GroupedPaths,
-        passwords: Passwords
+        passwords: Passwords,
+        path_dictionary: PathDictionary
     ) -> None:
     """
     Overwrite a PDF file as its unlocked version.
 
     :param file_path: Sanitized file path of the PDF file to unlock.
-    :param grouped_pdf_file_paths: Dictionary that maps file states with file paths of PDF files.
     :param passwords: Passwords to attempt unlocking the PDF file with.
+    :param path_dictionary: Dictionary that maps file states with file paths of PDF files.
     :raises PdfError: If unlocking the PDF file via `pikepdf` failed.
     :raises TypeCheckError: If any argument or return value has an invalid type.
     """
 
-    pdf_file_paths: Paths = []
-
     try:
         Pdf.open(file_path)
 
-        pdf_file_paths = grouped_pdf_file_paths[FileState.NOT_LOCKED]
-
-        if file_path not in pdf_file_paths:
-            pdf_file_paths.append(file_path)
+        path_dictionary.add_path(
+            file_path = file_path,
+            file_state = FileState.NOT_LOCKED
+        )
     except PasswordError:
         did_unlock = False
 
@@ -228,11 +226,10 @@ def _unlock_pdf_file(
                     ErrorMessage.FAILED_OVERWRITE(file_path)
                 ) from exception
 
-        pdf_file_paths = grouped_pdf_file_paths \
-            [FileState.UNLOCKED if did_unlock else FileState.LOCKED]
-
-        if file_path not in pdf_file_paths:
-            pdf_file_paths.append(file_path)
+        path_dictionary.add_path(
+            file_path = file_path,
+            file_state = FileState.UNLOCKED if did_unlock else FileState.LOCKED
+        )
     except Exception as exception:
         raise PdfError(
             ErrorMessage.FAILED_OVERWRITE(file_path)
@@ -258,19 +255,13 @@ def unlock_pdf() -> None:
     # Enforce input order via order of variable declaration.
     pdf_file_paths = _get_pdf_file_paths()
     passwords = _get_passwords()
-
-    grouped_pdf_file_paths: GroupedPaths = {
-        key: []
-        for key in [
-            file_state for file_state in FileState
-        ]
-    }
+    path_dictionary = PathDictionary()
 
     for pdf_file_path in pdf_file_paths:
         _unlock_pdf_file(
-            grouped_pdf_file_paths = grouped_pdf_file_paths,
             file_path = pdf_file_path,
-            passwords = passwords
+            passwords = passwords,
+            path_dictionary = path_dictionary
         )
 
-    _log_unlock_attempt(grouped_pdf_file_paths)
+    _log_unlock_attempt(path_dictionary)
