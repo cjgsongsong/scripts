@@ -11,7 +11,7 @@ dependencies = [
 ]
 
 [project.scripts]
-unlock-pdf = "unlock_pdf.__main__:unlock_pdf"
+unlock-pdf = "unlock_pdf.functions:unlock_pdf"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

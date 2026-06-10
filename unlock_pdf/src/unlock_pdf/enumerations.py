@@ -85,7 +85,6 @@ class Module(StrEnum):
     """Enumeration of module names."""
 
     DIRECT_EXECUTION = "__main__"
-    PACKAGE_EXECUTION = "unlock_pdf.__main__"
 
 class Path(StrEnum):
     """Enumeration of path constants."""
