@@ -8,7 +8,7 @@ from pikepdf import (
     PdfError
 )
 from typeguard import typechecked
-from unlock_pdf.classes import PathDictionary
+from unlock_pdf.classes.path_dictionary import PathDictionary
 from unlock_pdf.enumerations import (
     ErrorMessage,
     FileState,

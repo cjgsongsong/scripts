@@ -1,4 +1,4 @@
-"""`unlock-pdf` classes."""
+"""Path dictionary class."""
 
 from collections import UserDict
 from unlock_pdf.enumerations import FileState
