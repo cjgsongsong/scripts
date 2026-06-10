@@ -3,9 +3,9 @@
 # pyright: reportPrivateUsage=false
 
 from pytest import CaptureFixture
+from unlock_pdf.classes.path_dictionary import PathDictionary
 from unlock_pdf.enumerations import FileState
 from unlock_pdf.functions import _log_unlock_attempt
-from unlock_pdf.types import GroupedPaths
 
 def test_log_unlock_attempt_prints_per_file_state(capsys: CaptureFixture[str]) -> None:
     """
@@ -20,16 +20,11 @@ def test_log_unlock_attempt_prints_per_file_state(capsys: CaptureFixture[str]) -
     :param capsys: `pytest` fixture for capturing outputs.
     """
 
-    grouped_pdf_file_paths: GroupedPaths = {
-        key: []
-        for key in [
-            file_state for file_state in FileState
-        ]
-    }
-    grouped_pdf_file_paths[FileState.NOT_LOCKED] = ["test-0.pdf"]
-    grouped_pdf_file_paths[FileState.UNLOCKED] = ["test-1.pdf", "test-2.pdf"]
+    path_dictionary = PathDictionary()
+    path_dictionary[FileState.NOT_LOCKED] = ["test-0.pdf"]
+    path_dictionary[FileState.UNLOCKED] = ["test-1.pdf", "test-2.pdf"]
 
-    _log_unlock_attempt(grouped_pdf_file_paths)
+    _log_unlock_attempt(path_dictionary)
 
     assert (
         capsys \

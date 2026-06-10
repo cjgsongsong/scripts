@@ -2,16 +2,16 @@
 
 # pyright: reportPrivateUsage=false
 
-from copy import deepcopy
 from pikepdf import PasswordError, PdfError
 from pytest import (
     MonkeyPatch,
     mark,
     raises
 )
+from unlock_pdf.classes.path_dictionary import PathDictionary
 from unlock_pdf.enumerations import FileState
 from unlock_pdf.functions import _unlock_pdf_file
-from unlock_pdf.types import GroupedPaths, Passwords
+from unlock_pdf.types import Passwords
 
 # <NOTE>
 # As the source code prefers named imports over default imports,
@@ -20,13 +20,6 @@ from unlock_pdf.types import GroupedPaths, Passwords
 #
 # See https://pytest.org/en/7.4.x/reference/reference.html#pytest.MonkeyPatch.setattr.
 import unlock_pdf.functions as target
-
-BASE_GROUPED_PDF_FILE_PATHS: GroupedPaths = {
-    key: []
-    for key in [
-        file_state for file_state in FileState
-    ]
-}
 
 class _MockPDF:
     """Mock class of `pikepdf.Pdf`."""
@@ -149,8 +142,8 @@ def test_unlock_pdf_file_attempts_unlocking(
 
     _unlock_pdf_file(
         file_path = "test.pdf",
-        grouped_pdf_file_paths = deepcopy(BASE_GROUPED_PDF_FILE_PATHS),
-        passwords = test_passwords
+        passwords = test_passwords,
+        path_dictionary = PathDictionary()
     )
 
     assert test_pikepdf_pdf.did_unlock == test_should_unlock
@@ -193,52 +186,61 @@ def test_unlock_pdf_file_raises_exception(
     ):
         _unlock_pdf_file(
             file_path = "test.pdf",
-            grouped_pdf_file_paths = deepcopy(BASE_GROUPED_PDF_FILE_PATHS),
-            passwords = ["password"]
+            passwords = ["password"],
+            path_dictionary = PathDictionary()
         )
 
-locked_grouped_pdf_file_paths = deepcopy(BASE_GROUPED_PDF_FILE_PATHS)
-not_locked_grouped_pdf_file_paths = deepcopy(BASE_GROUPED_PDF_FILE_PATHS)
-unlocked_grouped_pdf_file_paths = deepcopy(BASE_GROUPED_PDF_FILE_PATHS)
+locked_path_dictionary = PathDictionary()
+not_locked_path_dictionary = PathDictionary()
+unlocked_path_dictionary = PathDictionary()
 
-locked_grouped_pdf_file_paths[FileState.LOCKED] = ["test.pdf"]
-not_locked_grouped_pdf_file_paths[FileState.NOT_LOCKED] = ["test.pdf"]
-unlocked_grouped_pdf_file_paths[FileState.UNLOCKED] = ["test.pdf"]
+locked_path_dictionary.add_path(
+    file_path = "test.pdf",
+    file_state = FileState.LOCKED
+)
+not_locked_path_dictionary.add_path(
+    file_path = "test.pdf",
+    file_state = FileState.NOT_LOCKED
+)
+unlocked_path_dictionary.add_path(
+    file_path = "test.pdf",
+    file_state = FileState.UNLOCKED
+)
 
 @mark.parametrize(
-    "test_initial_grouped_pdf_file_paths, test_passwords, test_pdf_password," \
-    "test_final_grouped_pdf_file_paths",
+    "test_initial_path_dictionary, test_passwords, test_pdf_password," \
+    "test_final_path_dictionary",
     [
         (
-            BASE_GROUPED_PDF_FILE_PATHS, ["password"], "password-0",
-            locked_grouped_pdf_file_paths,
+            PathDictionary(), ["password"], "password-0",
+            locked_path_dictionary,
         ),
         (
-            BASE_GROUPED_PDF_FILE_PATHS, ["password"], "",
-            not_locked_grouped_pdf_file_paths
+            PathDictionary(), ["password"], "",
+            not_locked_path_dictionary
         ),
         (
-            BASE_GROUPED_PDF_FILE_PATHS, ["password"], "password",
-            unlocked_grouped_pdf_file_paths
+            PathDictionary(), ["password"], "password",
+            unlocked_path_dictionary
         ),
         (
-            locked_grouped_pdf_file_paths, ["password"], "password-0",
-            locked_grouped_pdf_file_paths
+            locked_path_dictionary, ["password"], "password-0",
+            locked_path_dictionary
         ),
         (
-            not_locked_grouped_pdf_file_paths, ["password"], "",
-            not_locked_grouped_pdf_file_paths
+            not_locked_path_dictionary, ["password"], "",
+            not_locked_path_dictionary
         ),
         (
-            unlocked_grouped_pdf_file_paths, ["password"], "password",
-            unlocked_grouped_pdf_file_paths
+            unlocked_path_dictionary, ["password"], "password",
+            unlocked_path_dictionary
         )
     ]
 )
 def test_unlock_pdf_file_groups_pdf_file_path(
     monkeypatch: MonkeyPatch,
-    test_final_grouped_pdf_file_paths: GroupedPaths,
-    test_initial_grouped_pdf_file_paths: GroupedPaths,
+    test_final_path_dictionary: PathDictionary,
+    test_initial_path_dictionary: PathDictionary,
     test_passwords: Passwords,
     test_pdf_password: str
 ) -> None:
@@ -248,15 +250,15 @@ def test_unlock_pdf_file_groups_pdf_file_path(
     based on unlocking result.
 
     :param monkeypatch: `pytest` fixture for mocking functions.
-    :param test_final_grouped_pdf_file_paths: Resulting dictionary that maps file states with
-                                              file paths of PDF files.
-    :param test_initial_grouped_pdf_file_paths: Starting dictionary that maps file states with
-                                                file paths of PDF files.
+    :param test_final_path_dictionary: Resulting dictionary that maps file states
+                                       with file paths of PDF files.
+    :param test_initial_path_dictionary: Starting dictionary that maps file states
+                                         with file paths of PDF files.
     :param test_passwords: Passwords to attempt unlocking the PDF file with.
     :param test_pdf_password: Password needed to unlock the PDF file with.
     """
 
-    test_grouped_pdf_file_paths = deepcopy(test_initial_grouped_pdf_file_paths)
+    test_path_dictionary = test_initial_path_dictionary
 
     monkeypatch.setattr(
         name = "Pdf",
@@ -266,8 +268,8 @@ def test_unlock_pdf_file_groups_pdf_file_path(
 
     _unlock_pdf_file(
         file_path = "test.pdf",
-        grouped_pdf_file_paths = test_grouped_pdf_file_paths,
-        passwords = test_passwords
+        passwords = test_passwords,
+        path_dictionary = test_path_dictionary
     )
 
-    assert test_grouped_pdf_file_paths == test_final_grouped_pdf_file_paths
+    assert test_path_dictionary == test_final_path_dictionary

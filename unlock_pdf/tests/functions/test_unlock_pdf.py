@@ -1,9 +1,8 @@
 """Tests for `unlock_pdf`."""
 
 from pytest import MonkeyPatch, mark
-from unlock_pdf.enumerations import FileState
+from unlock_pdf.classes.path_dictionary import PathDictionary
 from unlock_pdf.functions import unlock_pdf
-from unlock_pdf.types import GroupedPaths
 
 # <NOTE>
 # As the source code prefers named imports over default imports,
@@ -37,45 +36,38 @@ def test_unlock_pdf_calls_helper_functions(
     :param test_pdf_file_paths: Ordered list of unique paths of all PDF files to unlock.
     """
 
-    test_grouped_pdf_file_paths: GroupedPaths = {
-        key: []
-        for key in [
-            file_state for file_state in FileState
-        ]
-    }
+    test_path_dictionary = PathDictionary()
     test_passwords = ["password"]
     unlock_count = 0
 
-    def _mock_log_unlock_attempt(grouped_pdf_file_paths: GroupedPaths) -> None:
+    def _mock_log_unlock_attempt(path_dictionary: PathDictionary) -> None:
         """
         Mock function of `unlock_pdf.functions._log_unlock_attempt` that
         mocks printing file state count.
         
-        :param grouped_pdf_file_paths: Dictionary that maps file states
-                                       with file paths of PDF files.
+        :param path_dictionary: Dictionary that maps file states with file paths of PDF files.
         """
 
-        assert grouped_pdf_file_paths == test_grouped_pdf_file_paths
+        assert path_dictionary == test_path_dictionary
 
     def _mock_unlock_pdf_file(
         file_path: str,
-        grouped_pdf_file_paths: GroupedPaths,
-        passwords: list[str]
+        passwords: list[str],
+        path_dictionary: PathDictionary
     ) -> None:
         """
         Mock function of `unlock_pdf.functions._mock_unlock_pdf_file` that
         mocks unlocking of a PDF file.
 
         :param file_path: Sanitized file path of the PDF file to unlock.
-        :param grouped_pdf_file_paths: Dictionary that maps file states
-                                       with file paths of PDF files.
         :param passwords: Passwords to attempt unlocking the PDF file with.
+        :param path_dictionary: Dictionary that maps file states with file paths of PDF files.
         """
 
         nonlocal unlock_count
 
         assert file_path in test_pdf_file_paths
-        assert grouped_pdf_file_paths == test_grouped_pdf_file_paths
+        assert path_dictionary == test_path_dictionary
         assert passwords == test_passwords
 
         unlock_count += 1
