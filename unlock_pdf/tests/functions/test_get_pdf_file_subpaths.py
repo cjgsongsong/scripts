@@ -17,28 +17,39 @@ import unlock_pdf.functions as target
 
 @mark.parametrize(
     "test_path," \
-    "test_glob_paths, test_is_directory, test_is_pdf_file," \
+    "test_escaped_path, test_glob_paths," \
+    "test_is_directory, test_is_pdf_file," \
     "test_pdf_file_subpaths",
     [
         (
             "test-directory/",
-            ["test-directory/test-0.pdf", "test-directory/test-1.pdf"], True, False,
+            "test-directory/", ["test-directory/test-0.pdf", "test-directory/test-1.pdf"],
+            True, False,
             ["test-directory/test-0.pdf", "test-directory/test-1.pdf"]
         ),
         (
+            "[test].pdf",
+            "\\[test\\].pdf", [],
+            False, True,
+            ["[test].pdf"]
+        ),
+        (
             "test.pdf",
-            [], False, True,
+            "test.pdf", [],
+            False, True,
             ["test.pdf"]
         ),
         (
             "",
-            [], False, False,
+            "", [],
+            False, False,
             []
         )
     ]
 )
 def test_get_pdf_file_subpaths_returns_pdf_file_subpaths(
     monkeypatch: MonkeyPatch,
+    test_escaped_path: str,
     test_glob_paths: Paths,
     test_is_directory: bool,
     test_is_pdf_file: bool,
@@ -51,6 +62,8 @@ def test_get_pdf_file_subpaths_returns_pdf_file_subpaths(
     when given a valid path.
     
     :param monkeypatch: `pytest` fixture for mocking functions.
+    :param test_escaped_path: Mock directory path or mock file path of some PDF files to unlock that
+                              has all its special characters escaped.
     :param test_glob_paths: Mock list of paths that match the determined file path pattern.
     :param test_is_directory: Mock boolean that
                               tells whether the file path directly points to a directory or not.
@@ -60,6 +73,19 @@ def test_get_pdf_file_subpaths_returns_pdf_file_subpaths(
     :param test_pdf_file_subpaths: Ordered list of unique paths of some PDF files to unlock.
     """
 
+    def _mock_escape(pathname: str) -> str:
+        """
+        Mock function of `glob.glob` that
+        returns the given pathname with all its special characters escaped.
+        
+        :param pathname: File path pattern.
+        :returns: Pathname with all its special characters escaped.
+        """
+
+        assert pathname == test_path
+
+        return test_escaped_path
+
     def _mock_glob(pathname: str, recursive: bool) -> Paths:
         """
         Mock function of `glob.glob` that
@@ -67,10 +93,10 @@ def test_get_pdf_file_subpaths_returns_pdf_file_subpaths(
         
         :param pathname: File path pattern.
         :param recursive: Whether to recursively look for matches in directories or not.
-        :returns List of paths that match the determined file path pattern.
+        :returns: List of paths that match the determined file path pattern.
         """
 
-        assert pathname == test_path + "/**/*.pdf"
+        assert pathname == test_escaped_path + "/**/*.pdf"
         assert recursive is True
 
         return test_glob_paths
@@ -82,6 +108,11 @@ def test_get_pdf_file_subpaths_returns_pdf_file_subpaths(
             test_boolean = test_is_pdf_file,
             test_path = test_path
         )
+    )
+    monkeypatch.setattr(
+        name = "escape",
+        target = target,
+        value = _mock_escape
     )
     monkeypatch.setattr(
         name = "glob",
