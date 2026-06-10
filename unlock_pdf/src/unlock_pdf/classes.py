@@ -1,24 +1,8 @@
 """`unlock-pdf` classes."""
 
 from collections import UserDict
-from enum import Enum
-from typing import override
 from unlock_pdf.enumerations import FileState
 from unlock_pdf.types import Paths
-
-class MessageEnum(Enum):
-    """`Enum` wrapper to emulate `StrEnum` behavior for its members with string values."""
-    @override
-    def __str__(self) -> str:
-        """
-        Override `Enum`'s default `__str__` behavior to return the member's value
-        when accessing said member if said value is a string.
-        """
-        return (
-            self.value
-            if isinstance(self.value, str)
-            else super().__str__()
-        )
 
 class PathDictionary(UserDict[FileState, Paths]):
     """Dictionary that maps file states with file paths of PDF files."""

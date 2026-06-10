@@ -2,9 +2,9 @@
 
 from enum import StrEnum
 from typeguard import typechecked
-from unlock_pdf.classes import MessageEnum
+from unlock_pdf.classes.string_generator_enumeration import StrGenEnum
 
-class ErrorMessage(MessageEnum):
+class ErrorMessage(StrGenEnum):
     """Enumeration of error messages."""
 
     @classmethod
@@ -47,7 +47,7 @@ class InputPrompt(StrEnum):
     PASSWORDS = "Enter every password to attempt unlocking each PDF file with."
     PATHS = "Enter every directory path and/or file path of the PDF files to unlock."
 
-class LogMessage(MessageEnum):
+class LogMessage(StrGenEnum):
     """Enumeration of log messages."""
 
     @classmethod
