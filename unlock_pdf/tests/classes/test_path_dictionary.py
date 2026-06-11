@@ -33,7 +33,7 @@ def test_path_dictionary_initializes(
 
     :param test_initial_path_dictionary: Initial dictionary
                                          that maps file states with PDF file paths.
-    :param test_initial_pdf_file_paths: Initial list of PDF file paths of every file state.
+    :param test_initial_pdf_file_paths: Every file state's initial list of PDF file paths.
     """
 
     test_path_dictionary = PathDictionary(test_initial_path_dictionary)
@@ -46,11 +46,10 @@ def test_path_dictionary_initializes(
 def test_path_dictionary_groups_file_path_by_file_state(test_file_state: FileState) -> None:
     """
     Assert that adding a file path to a path dictionary
-    adds accordingly said file path
-    to the list of PDF file paths
-    that resulted to the given file state.
+    adds said file path
+    to the list of PDF file paths that resulted to the file state.
     
-    :param test_file_state: Mock state that a PDF file may be after an unlock attempt.
+    :param test_file_state: State that a PDF file may be after an unlock attempt.
     """
 
     test_path_dictionary = PathDictionary()

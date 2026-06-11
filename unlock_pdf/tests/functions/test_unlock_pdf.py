@@ -45,7 +45,7 @@ def test_unlock_pdf_calls_helper_functions(
         Mock function of `unlock_pdf.functions._log_unlock_attempt` that
         mocks printing file state count.
         
-        :param path_dictionary: Dictionary that maps file states with file paths of PDF files.
+        :param path_dictionary: Dictionary that maps file states with PDF file paths.
         """
 
         assert path_dictionary == test_path_dictionary
@@ -61,7 +61,7 @@ def test_unlock_pdf_calls_helper_functions(
 
         :param file_path: Sanitized file path of the PDF file to unlock.
         :param passwords: Passwords to attempt unlocking the PDF file with.
-        :param path_dictionary: Dictionary that maps file states with file paths of PDF files.
+        :param path_dictionary: Dictionary that maps file states with PDF file paths.
         """
 
         nonlocal unlock_count

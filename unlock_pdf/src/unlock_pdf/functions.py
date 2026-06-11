@@ -144,7 +144,7 @@ def _log_unlock_attempt(path_dictionary: PathDictionary) -> None:
     - how many PDF files are in such file state, and
     - what are the file paths of those PDF files.
 
-    :param path_dictionary: Dictionary that maps file states with file paths of PDF files.
+    :param path_dictionary: Dictionary that maps file states with PDF file paths.
     :raises TypeCheckError: If any argument or return value has an invalid type.
     """
 
@@ -191,7 +191,7 @@ def _unlock_pdf_file(
 
     :param file_path: Sanitized file path of the PDF file to unlock.
     :param passwords: Passwords to attempt unlocking the PDF file with.
-    :param path_dictionary: Dictionary that maps file states with file paths of PDF files.
+    :param path_dictionary: Dictionary that maps file states with PDF file paths.
     :raises PdfError: If unlocking the PDF file via `pikepdf` failed.
     :raises TypeCheckError: If any argument or return value has an invalid type.
     """
