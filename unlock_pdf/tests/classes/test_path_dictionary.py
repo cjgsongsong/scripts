@@ -17,10 +17,7 @@ def test_path_dictionary_initializes() -> None:
         assert file_state in test_path_dictionary.keys()
         assert test_path_dictionary[file_state] == []
 
-@mark.parametrize(
-    "test_file_state",
-    FileState
-)
+@mark.parametrize("test_file_state", FileState)
 def test_path_dictionary_groups_file_path_by_file_state(test_file_state: FileState) -> None:
     """
     Assert that adding a file path to a path dictionary
@@ -41,6 +38,6 @@ def test_path_dictionary_groups_file_path_by_file_state(test_file_state: FileSta
     for file_state in FileState:
         assert test_path_dictionary[file_state] == (
             ["test.pdf"]
-            if file_state == test_file_state
-            else []
+            if file_state == test_file_state else
+            []
         )
