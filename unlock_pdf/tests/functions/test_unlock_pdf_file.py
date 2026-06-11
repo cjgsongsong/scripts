@@ -190,22 +190,30 @@ def test_unlock_pdf_file_raises_exception(
             path_dictionary = PathDictionary()
         )
 
-locked_path_dictionary = PathDictionary()
-not_locked_path_dictionary = PathDictionary()
-unlocked_path_dictionary = PathDictionary()
-
-locked_path_dictionary.add_path(
-    file_path = "test.pdf",
-    file_state = FileState.LOCKED
-)
-not_locked_path_dictionary.add_path(
-    file_path = "test.pdf",
-    file_state = FileState.NOT_LOCKED
-)
-unlocked_path_dictionary.add_path(
-    file_path = "test.pdf",
-    file_state = FileState.UNLOCKED
-)
+locked_path_dictionary = PathDictionary({
+    file_state: (
+        ["test.pdf"]
+        if file_state == FileState.LOCKED else
+        []
+    )
+    for file_state in FileState
+})
+not_locked_path_dictionary = PathDictionary({
+    file_state: (
+        ["test.pdf"]
+        if file_state == FileState.NOT_LOCKED else
+        []
+    )
+    for file_state in FileState
+})
+unlocked_path_dictionary = PathDictionary({
+    file_state: (
+        ["test.pdf"]
+        if file_state == FileState.UNLOCKED else
+        []
+    )
+    for file_state in FileState
+})
 
 @mark.parametrize(
     "test_initial_path_dictionary, test_passwords, test_pdf_password," \
