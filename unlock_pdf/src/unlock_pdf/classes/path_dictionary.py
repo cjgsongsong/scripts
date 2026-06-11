@@ -13,10 +13,8 @@ class PathDictionary(UserDict[FileState, Paths]):
         """Initialize a path dictionary."""
 
         super().__init__({
-            key: []
-            for key in [
-                file_state for file_state in FileState
-            ]
+            file_state: []
+            for file_state in FileState
         })
 
     @typechecked
