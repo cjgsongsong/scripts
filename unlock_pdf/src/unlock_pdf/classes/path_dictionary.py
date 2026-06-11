@@ -3,19 +3,36 @@
 from collections import UserDict
 from typeguard import typechecked
 from unlock_pdf.enumerations import FileState
-from unlock_pdf.types import Paths
+from unlock_pdf.types import InitialPathDictionary, Paths
 
 class PathDictionary(UserDict[FileState, Paths]):
     """Dictionary that maps file states with file paths of PDF files."""
 
     @typechecked
-    def __init__(self) -> None:
-        """Initialize a path dictionary."""
+    def __init__(
+        self,
+        initial_path_dictionary: InitialPathDictionary = None
+    ) -> None:
+        """
+        Initialize a path dictionary either
 
-        super().__init__({
-            file_state: []
-            for file_state in FileState
-        })
+        - with an initial dictionary that maps file states with PDF file paths, or
+        - with
+          - every file state as a key, and
+          - an empty list of PDF file paths as each key's corresponding value.
+
+        :param initial_path_dictionary: Initial dictionary
+                                        that maps file states with PDF file paths.
+        """
+
+        super().__init__(
+            initial_path_dictionary
+            if initial_path_dictionary else
+            {
+                file_state: []
+                for file_state in FileState
+            }
+        )
 
     @typechecked
     def add_path(
