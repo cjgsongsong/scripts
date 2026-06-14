@@ -1,8 +1,9 @@
 """String generator enumeration class."""
 
 from enum import Enum
-from typeguard import typechecked
 from typing import override
+
+from typeguard import typechecked
 
 class StrGenEnum(Enum):
     """`Enum` wrapper to emulate `StrEnum` behavior for its members with string values."""

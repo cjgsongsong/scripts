@@ -1,6 +1,6 @@
 """Tests for string generator enumeration class."""
 
-from unlock_pdf.enumerations import StrGenEnum
+from unlock_pdf.classes.string_generator_enumeration import StrGenEnum
 
 def test_string_generator_enumeration_stringifies() -> None:
     """
