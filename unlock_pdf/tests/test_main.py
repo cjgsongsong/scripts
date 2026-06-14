@@ -7,26 +7,10 @@ from pytest import mark, raises
 from unlock_pdf.enumerations import Module
 
 @mark.parametrize(
-    "test_executed_module," \
-    "test_exception_type, test_exception_message",
-    [
-        (
-            Module.DIRECT_EXECUTION,
-            OSError, None
-        ),
-        (
-            "importing_module",
-            RuntimeError,
-            "`unlock_pdf` must only be executed if directly imported from " + \
-            "`unlock_pdf.functions` and not from here."
-        )
-    ]
+    "test_module",
+    [Module.DIRECT_EXECUTION, "importing_module"]
 )
-def test_entry_point_raises_exception(
-    test_exception_message: str | None,
-    test_exception_type: type[Exception],
-    test_executed_module: str
-):
+def test_entry_point_raises_exception(test_module: str):
     """
     Assert that the entry point
     calls `unlock_pdf` only when the execution is valid,
@@ -38,17 +22,23 @@ def test_entry_point_raises_exception(
     - inputs are expected, and
     - no mock function of `builtins.input` is provided.
 
-    :param test_exception_message: Message of exception raised, if relevant to be tested.
-                                   Otherwise, `None`.
-    :param test_exception_type: Type of exception raised.
-    :param test_executed_module: Name of executed module.
+    :param test_module: Name of executed module.
     """
 
     with raises(
-        expected_exception = test_exception_type,
-        match = test_exception_message
+        expected_exception = (
+            OSError
+            if test_module == Module.DIRECT_EXECUTION else
+            RuntimeError
+        ),
+        match = (
+            None
+            if test_module == Module.DIRECT_EXECUTION else
+            "`unlock_pdf` must only be executed if directly imported from " + \
+            "`unlock_pdf.functions` and not from here."
+        )
     ):
         run_module(
             mod_name = "unlock_pdf",
-            run_name = test_executed_module
+            run_name = test_module
         )
