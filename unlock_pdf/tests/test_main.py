@@ -13,8 +13,10 @@ from unlock_pdf.enumerations import Module
 def test_entry_point_raises_exception(test_module: str):
     """
     Assert that the entry point
-    calls `unlock_pdf` only when the execution is valid,
-    specifically by asserting that it
+    calls `unlock_pdf`
+    only when the execution is valid.
+
+    More specifically, assert that the entry point
     raises an appropriate exception.
 
     Note that this test expects that a valid call to `unlock_pdf` will raise an exception as
