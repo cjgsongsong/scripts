@@ -1,4 +1,4 @@
-"""Tests for `unlock-pdf` error message generation."""
+"""Tests for error message generation."""
 
 from pytest import raises
 from unlock_pdf.enumerations import ErrorMessage

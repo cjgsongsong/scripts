@@ -1,1 +1,1 @@
-"""Tests for `unlock-pdf` functions."""
+"""`unlock-pdf` tests for functions."""

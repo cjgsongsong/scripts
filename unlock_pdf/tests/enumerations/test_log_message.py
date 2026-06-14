@@ -1,4 +1,4 @@
-"""Tests for `unlock-pdf` log message generation."""
+"""Tests for log message generation."""
 
 from pytest import mark, raises
 from unlock_pdf.enumerations import FileState, LogMessage

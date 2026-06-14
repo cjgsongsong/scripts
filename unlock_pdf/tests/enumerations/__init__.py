@@ -1,1 +1,1 @@
-"""Tests for `unlock-pdf` enumerations."""
+"""`unlock-pdf` tests for enumerations."""
