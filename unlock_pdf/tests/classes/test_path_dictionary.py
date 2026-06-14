@@ -1,6 +1,7 @@
 """Tests for path dictionary class."""
 
 from pytest import mark
+
 from unlock_pdf.classes.path_dictionary import PathDictionary
 from unlock_pdf.enumerations import FileState
 from unlock_pdf.types import InitialPathDictionary
