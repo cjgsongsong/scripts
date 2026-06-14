@@ -1,4 +1,4 @@
-"""Tests for `unlock-pdf` entry point."""
+"""Tests for entry point."""
 
 from pytest import mark, raises
 from runpy import run_module
