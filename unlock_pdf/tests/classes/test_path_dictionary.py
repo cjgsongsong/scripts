@@ -3,25 +3,19 @@
 from pytest import mark
 from unlock_pdf.classes.path_dictionary import PathDictionary
 from unlock_pdf.enumerations import FileState
-from unlock_pdf.types import InitialPathDictionary, Paths
+from unlock_pdf.types import InitialPathDictionary
 
 @mark.parametrize(
-    "test_initial_path_dictionary, test_initial_pdf_file_paths",
+    "test_initial_path_dictionary",
     [
-        (
-            {
-                file_state: ["test.pdf"]
-                for file_state in FileState
-            },
-            ["test.pdf"]
-        ),
-        (None, [])
+        {
+            file_state: ["test.pdf"]
+            for file_state in FileState
+        },
+        None
     ]
 )
-def test_path_dictionary_initializes(
-    test_initial_path_dictionary: InitialPathDictionary,
-    test_initial_pdf_file_paths: Paths
-) -> None:
+def test_path_dictionary_initializes(test_initial_path_dictionary: InitialPathDictionary) -> None:
     """
     Assert that a path dictionary
     initializes
@@ -33,14 +27,17 @@ def test_path_dictionary_initializes(
 
     :param test_initial_path_dictionary: Initial dictionary
                                          that maps file states with PDF file paths.
-    :param test_initial_pdf_file_paths: Every file state's initial list of PDF file paths.
     """
 
     test_path_dictionary = PathDictionary(test_initial_path_dictionary)
 
     for file_state in FileState:
         assert file_state in test_path_dictionary.keys()
-        assert test_path_dictionary[file_state] == test_initial_pdf_file_paths
+        assert test_path_dictionary[file_state] == (
+            ["test.pdf"]
+            if test_initial_path_dictionary else
+            []
+        )
 
 @mark.parametrize("test_file_state", FileState)
 def test_path_dictionary_groups_file_path_by_file_state(test_file_state: FileState) -> None:
