@@ -12,8 +12,9 @@ class StrGenEnum(Enum):
     @typechecked
     def __str__(self) -> str:
         """
-        Override `Enum`'s default `__str__` behavior to return the member's value
-        when accessing said member if said value is a string.
+        Override `Enum`'s default `__str__` behavior
+        to return the member's value
+        if said value is a string.
         """
         return (
             self.value

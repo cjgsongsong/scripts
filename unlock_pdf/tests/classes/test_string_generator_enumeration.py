@@ -10,7 +10,7 @@ def test_string_generator_enumeration_stringifies() -> None:
     """
 
     class _TestStrGenEnum(StrGenEnum):
-        """Mock message enumeration."""
+        """Test message enumeration."""
 
         NON_STRING = 0
         STRING = "test-value"
