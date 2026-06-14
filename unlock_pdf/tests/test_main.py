@@ -1,7 +1,9 @@
 """Tests for entry point."""
 
-from pytest import mark, raises
 from runpy import run_module
+
+from pytest import mark, raises
+
 from unlock_pdf.enumerations import Module
 
 @mark.parametrize(
