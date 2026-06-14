@@ -25,14 +25,15 @@ class PathDictionary(UserDict[FileState, Paths]):
                                         that maps file states with PDF file paths.
         """
 
-        super().__init__(
-            initial_path_dictionary
-            if initial_path_dictionary else
-            {
-                file_state: []
-                for file_state in FileState
-            }
-        )
+        super() \
+            .__init__(
+                initial_path_dictionary
+                if initial_path_dictionary else
+                {
+                    file_state: []
+                    for file_state in FileState
+                }
+            )
 
     @typechecked
     def add_path(
@@ -50,4 +51,6 @@ class PathDictionary(UserDict[FileState, Paths]):
         """
 
         if file_path not in self[file_state]:
-            self[file_state].append(file_path)
+            self \
+                [file_state] \
+                .append(file_path)
