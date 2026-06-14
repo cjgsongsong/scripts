@@ -44,7 +44,7 @@ Once Python is successfully installed, the following are also needed.
   - installed via
 
     ```bash
-    pip install pipx --user
+    pip install --user pipx
     ```
 
   - must be `v1.12.0` or above
