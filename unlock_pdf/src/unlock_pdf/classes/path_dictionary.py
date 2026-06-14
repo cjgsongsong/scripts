@@ -1,7 +1,9 @@
 """Path dictionary class."""
 
 from collections import UserDict
+
 from typeguard import typechecked
+
 from unlock_pdf.enumerations import FileState
 from unlock_pdf.types import InitialPathDictionary, Paths
 
