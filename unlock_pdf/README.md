@@ -158,7 +158,7 @@ Enter an empty string to quit.
 
 ## Changelog
 
-- `v0.8.0`
+- `0.8.0`
   - handled
     - failed overwrite
     - import execution
@@ -167,20 +167,20 @@ Enter an empty string to quit.
   - refactored code
   - tested code
   - type-checked functions
-- `v0.7.0`
+- `0.7.0`
   - allowed package execution
   - improved
     - documentation
     - logs
   - refactored code
-- `v0.6.0`
+- `0.6.0`
   - ignored duplicates
     - passwords
     - paths
-- `v0.5.0`
+- `0.5.0`
   - logged unlocking result by file state
   - refactored code
-- `v0.4.0`
+- `0.4.0`
   - improved
     - documentation
     - input order
@@ -188,10 +188,10 @@ Enter an empty string to quit.
   - refactored code
   - unlocked PDF files in given multiple paths with given multiple passwords
     - allowed directory path inputs
-- `v0.3.0`
+- `0.3.0`
   - improved logs
   - unlocked PDF file in given file path with given multiple passwords
-- `v0.2.0`
+- `0.2.0`
   - logged unlocking result
   - handled
     - failed overwrite
@@ -199,7 +199,7 @@ Enter an empty string to quit.
     - unprotected PDF file
   - sanitized file path input
   - validated inputs
-- `v0.1.0`
+- `0.1.0`
   - unlocked PDF file in given file path with given password
-- `v0.0.0`
+- `0.0.0`
   - initialized package
