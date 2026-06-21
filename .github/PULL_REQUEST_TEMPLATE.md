@@ -14,7 +14,7 @@ Name the head branch
 Title the pull request
 
 - `scripts` for repository-related changes, or
-- `` `$SCRIPT` v`$VERSION` `` for script-related changes.
+- `` `$SCRIPT` `$VERSION` `` for script-related changes.
 
 -->
 
